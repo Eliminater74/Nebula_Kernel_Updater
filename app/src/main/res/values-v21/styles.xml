@@ -10,6 +10,7 @@
 
         <!-- v21+ only -->
         <item name="android:navigationBarColor">@color/navBarColor</item>
+        <item name="android:colorForeground">@color/foreground_material_dark</item>
     </style>
 
 </resources>
