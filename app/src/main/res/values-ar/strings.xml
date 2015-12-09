@@ -21,6 +21,7 @@
   <string name="dialog_title_rootFail">بحاجة الى Root</string>
   <string name="dialog_content_about">برمجة %1$s</string>
   <string name="dialog_content_about1">تعديل ALDRIN HOLMES</string>
+  <string name="dialog_content_about2">Modified by Eliminater74</string>
   <string name="card_title_latestVersion">احدث نسخة</string>
   <string name="card_title_installedKernel">ال kernel المثبتة</string>
   <string name="field_filesize">حجم الملف</string>

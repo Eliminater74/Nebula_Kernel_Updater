@@ -21,6 +21,7 @@
   <string name="dialog_title_rootFail">Απαιτείται root συσκευής</string>
   <string name="dialog_content_about">Αναπτύχθηκε από %1$s</string>
   <string name="dialog_content_about1">Τροποποιήθηκε από ALDRIN HOLMES</string>
+  <string name="dialog_content_about2">Modified by Eliminater74</string>
   <string name="card_title_latestVersion">Τελευταία έκδοση</string>
   <string name="card_title_installedKernel">Εγκατεστημένος Kernel</string>
   <string name="field_filesize">Μέγεθος αρχείου</string>

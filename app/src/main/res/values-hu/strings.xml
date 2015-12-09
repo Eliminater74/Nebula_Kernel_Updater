@@ -21,6 +21,7 @@
   <string name="dialog_title_rootFail">Root szükséges</string>
   <string name="dialog_content_about">%1$s fejlesztette</string>
   <string name="dialog_content_about1">ALDRIN HOLMES módosította</string>
+  <string name="dialog_content_about2">Modified by Eliminater74</string>
   <string name="card_title_latestVersion">Legújabb verzió</string>
   <string name="card_title_installedKernel">Telepített kernel</string>
   <string name="field_filesize">Fájl méret</string>

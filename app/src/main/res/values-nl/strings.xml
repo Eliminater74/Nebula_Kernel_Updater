@@ -21,6 +21,7 @@
   <string name="dialog_title_rootFail">Root is nodig</string>
   <string name="dialog_content_about">Ontwikkeld door %1$s</string>
   <string name="dialog_content_about1">Aangepast door ALDRIN HOLMES</string>
+  <string name="dialog_content_about2">Modified by Eliminater74</string>
   <string name="card_title_latestVersion">Laatste Versie</string>
   <string name="card_title_installedKernel">Geïnstalleerde kernel</string>
   <string name="field_filesize">Bestandsgrootte</string>

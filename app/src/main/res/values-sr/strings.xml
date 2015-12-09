@@ -21,6 +21,7 @@
   <string name="dialog_title_rootFail">Potreban je Root pristup</string>
   <string name="dialog_content_about">Razvijen od strane %1$s</string>
   <string name="dialog_content_about1">Modifikovan od strane ALDRIN HOLMES-a</string>
+  <string name="dialog_content_about2">Modified by Eliminater74</string>
   <string name="card_title_latestVersion">Poslednja verzija</string>
   <string name="card_title_installedKernel">Instalirani kernel</string>
   <string name="field_filesize">Veličina datoteke</string>

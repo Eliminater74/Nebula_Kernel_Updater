@@ -21,6 +21,7 @@
   <string name="dialog_title_rootFail">Le root est nécessaire</string>
   <string name="dialog_content_about">Développé par %1$s</string>
   <string name="dialog_content_about1">Modifié par Aldrin Holmes</string>
+  <string name="dialog_content_about2">Modified by Eliminater74</string>
   <string name="card_title_latestVersion">Dernière version</string>
   <string name="card_title_installedKernel">Kernel installé</string>
   <string name="field_filesize">Taille du fichier</string>

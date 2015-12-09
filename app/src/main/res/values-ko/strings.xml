@@ -21,6 +21,7 @@
   <string name="dialog_title_rootFail">루트 권한이 필요합니다.</string>
   <string name="dialog_content_about">개발: %1$s</string>
   <string name="dialog_content_about1">수정: ALDRIN HOLMES</string>
+  <string name="dialog_content_about2">Modified by Eliminater74</string>
   <string name="card_title_latestVersion">최신 버전</string>
   <string name="card_title_installedKernel">설치된 커널</string>
   <string name="field_filesize">파일 크기</string>

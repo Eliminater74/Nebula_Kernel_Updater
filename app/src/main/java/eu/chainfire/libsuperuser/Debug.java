@@ -19,7 +19,7 @@ package eu.chainfire.libsuperuser;
 import android.os.Looper;
 import android.util.Log;
 
-import com.callmealdy.kernelupdater.BuildConfig;
+import com.nebula.kernelupdater.BuildConfig;
 
 /**
  * Utility class for logging and debug features that (by default) does nothing when not in debug mode
@@ -230,7 +230,7 @@ public class Debug {
     }
 
     public interface OnLogListener {
-        public void onLog(int type, String typeIndicator, String message);
+        void onLog(int type, String typeIndicator, String message);
     }
 
 }

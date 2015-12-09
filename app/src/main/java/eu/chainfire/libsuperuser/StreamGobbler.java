@@ -98,6 +98,6 @@ public class StreamGobbler extends Thread {
          *
          * @param line String that was gobbled
          */
-        public void onLine(String line);
+        void onLine(String line);
     }
 }
