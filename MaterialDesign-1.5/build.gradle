@@ -1,0 +1,2 @@
+configurations.create("default")
+artifacts.add("default", file('MaterialDesign-1.5.aar'))

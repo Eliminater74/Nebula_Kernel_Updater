@@ -2,12 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        Nebula {
-            keyAlias 'The Nebula Project'
-            keyPassword 'elim00154'
-            storeFile file('C:/Users/Michael Harrell/.keys/nebula_keys.jks')
-            storePassword 'elim00154'
-        }
     }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -17,16 +11,22 @@ android {
         targetSdkVersion 22
         versionCode 12
         versionName '1.3'
-        signingConfig signingConfigs.Nebula
     }
     buildTypes {
         release {
             zipAlignEnabled true
             minifyEnabled false
-            signingConfig signingConfigs.Nebula
         }
     }
     productFlavors {
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    flatDir {
+        dirs 'libs'
     }
 }
 
@@ -36,3 +36,4 @@ dependencies {
     compile 'com.android.support:cardview-v7:22.2.0'
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }
+
