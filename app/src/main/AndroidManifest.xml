@@ -28,7 +28,7 @@
         <activity
             android:name="com.nebula.kernelupdater.Settings"
             android:label="@string/activity_settings"
-            android:parentActivityName="com.callmealdy.kernelupdater.Main"
+            android:parentActivityName="com.nebula.kernelupdater.Main"
             android:screenOrientation="portrait" />
 
         <service
@@ -42,7 +42,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.callmealdy.kernelupdater.FileSelector.FileBrowser"
+            android:name="com.nebula.kernelupdater.FileSelector.FileBrowser"
             android:label="@string/activity_fileBrowser"
             android:screenOrientation="portrait" />
 
