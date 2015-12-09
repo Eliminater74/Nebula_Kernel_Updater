@@ -75,5 +75,4 @@
   <string name="prompt_android_version">Jakou verzi Androidu používáte?</string>
   <string name="prompt_blankDefault">Nezadávejte pro výchozí nastavení</string>
   <string name="prompt_zipExtension">Nezapomeňte přidat příponu .zip</string>
-  <string name="app_name" translatable="false">Nebula Kernel Updater</string>
 </resources>

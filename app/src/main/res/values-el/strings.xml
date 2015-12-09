@@ -75,5 +75,4 @@
   <string name="prompt_android_version">Ποια έκδοση του Android χρησιμοποιείτε;</string>
   <string name="prompt_blankDefault">Αφήστε το κενό για την προεπιλογή</string>
   <string name="prompt_zipExtension">Μην ξεχάσετε να προσθέσετε την επέκταση αρχείου .zip</string>
-  <string name="app_name" translatable="false">Nebula Kernel Updater</string>
 </resources>

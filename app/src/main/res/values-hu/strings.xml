@@ -75,5 +75,4 @@
   <string name="prompt_android_version">Mi változat-ból Android használ?</string>
   <string name="prompt_blankDefault">Hagyja üresen a mezőt az alapértelmezett</string>
   <string name="prompt_zipExtension">Ne felejtsd el hozzáadni a .zip kiterjesztésű</string>
-  <string name="app_name" translatable="false">Nebula Kernel Updater</string>
 </resources>

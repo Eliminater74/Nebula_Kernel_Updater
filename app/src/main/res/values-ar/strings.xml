@@ -76,5 +76,4 @@ file.\n\nOriginal:%1$s\nCalculated:%2$s</string>
   <string name="prompt_android_version">ما هي نسخة الاندرويد التي تستخدمها؟</string>
   <string name="prompt_blankDefault">اتركه فارغاً للافتراضي</string>
   <string name="prompt_zipExtension">لا تنسى اضافة صيغة .zip</string>
-  <string name="app_name">Nebula Kernel Updater</string>
 </resources>

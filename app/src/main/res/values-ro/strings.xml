@@ -75,5 +75,4 @@
   <string name="prompt_android_version">Ce versiune de Android folosiți?</string>
   <string name="prompt_blankDefault">Lăsaţi gol pentru implicit</string>
   <string name="prompt_zipExtension">Nu uitaţi să adăugaţi extensia de fişier .zip</string>
-  <string name="app_name" translatable="false">Nebula Kernel Updater</string>
 </resources>

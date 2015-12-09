@@ -75,5 +75,4 @@
   <string name="prompt_android_version">您正在使用什么版本的 android 系统？</string>
   <string name="prompt_blankDefault">默认留空</string>
   <string name="prompt_zipExtension">不要忘记添加.zip 文件扩展名</string>
-  <string name="app_name" translatable="false">Nebula Kernel Updater</string>
 </resources>

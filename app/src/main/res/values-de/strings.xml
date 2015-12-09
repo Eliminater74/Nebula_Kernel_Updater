@@ -77,5 +77,4 @@
   <string name="prompt_android_version">Welche Androidversion benutzt du?</string>
   <string name="prompt_blankDefault">Feld leer lassen, um die Standardeinstellungen anzuwenden</string>
   <string name="prompt_zipExtension">Vergiss nicht, als Dateierweiterung .zip anzugeben</string>
-  <string name="app_name" translatable="false">Nebula Kernel Updater</string>
 </resources>
