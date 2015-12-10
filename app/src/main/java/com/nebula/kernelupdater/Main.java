@@ -20,7 +20,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.UnderlineSpan;
@@ -50,7 +50,7 @@ import java.util.Scanner;
 /**
  * Created by Mike on 9/19/2014.
  */
-public class Main extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     public static SharedPreferences preferences;
     public static boolean running;
@@ -259,6 +259,9 @@ public class Main extends ActionBarActivity implements SwipeRefreshLayout.OnRefr
             if (getSupportActionBar() != null)
                 getSupportActionBar().setElevation(5);
         }
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.drawable.ic_launcher);
+        getSupportActionBar().setTitle("ebula Updater");
 
         tools = Tools.getInstance(this);
         preferences = getSharedPreferences("Settings", MODE_MULTI_PROCESS);
