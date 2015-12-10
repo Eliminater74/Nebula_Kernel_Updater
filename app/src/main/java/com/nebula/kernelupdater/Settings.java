@@ -14,7 +14,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -43,7 +43,7 @@ import java.util.Scanner;
 /**
  * Created by Mike on 9/22/2014.
  */
-public class Settings extends ActionBarActivity {
+public class Settings extends AppCompatActivity {
 
     private Activity activity;
     private String DEVICE_PART;
