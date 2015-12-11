@@ -75,4 +75,5 @@
   <string name="prompt_android_version">cual es la version de android que uso?</string>
   <string name="prompt_blankDefault">Déjelo en blanco por defecto</string>
   <string name="prompt_zipExtension">No olvide añadir extensión de archivo .zip</string>
+  <string name="action_exit">Exit</string>
 </resources>

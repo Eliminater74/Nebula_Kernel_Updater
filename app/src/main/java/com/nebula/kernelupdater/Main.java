@@ -50,9 +50,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
 
-/**
- * Created by Mike on 9/19/2014.
- */
+
 public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     public static SharedPreferences preferences;

@@ -89,5 +89,6 @@
     <string name="prompt_android_version">What version of Android are you using?</string>
     <string name="prompt_blankDefault">Leave it blank for default</string>
     <string name="prompt_zipExtension">Do not forget to add .zip file extension</string>
+    <string name="action_exit">Exit</string>
 
 </resources>
