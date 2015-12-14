@@ -43,7 +43,7 @@ public abstract class HideOverlaysReceiver extends BroadcastReceiver {
     public static final String EXTRA_HIDE_OVERLAYS = "eu.chainfire.supersu.extra.HIDE";
 
     @Override
-    public final void onReceive(Context context, Intent intent) {
+    public void onReceive(Context context, Intent intent) {
         if (intent.hasExtra(EXTRA_HIDE_OVERLAYS)) {
             onHideOverlays(intent.getBooleanExtra(EXTRA_HIDE_OVERLAYS, false));
         }

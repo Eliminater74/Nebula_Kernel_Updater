@@ -53,13 +53,13 @@ import eu.chainfire.libsuperuser.Shell.OnCommandResultListener;
 /**
  * Created by Mike on 9/19/2014.
  */
-public class Tools {
+public final class Tools {
 
-    public static String EVENT_DOWNLOAD_COMPLETE = "THEMIKE10452.TOOLS.DOWNLOAD.COMPLETE";
-    public static String EVENT_DOWNLOADEDFILE_EXISTS = "THEMIKE10452.TOOLS.DOWNLOAD.FILE.EXISTS";
-    public static String EVENT_DOWNLOAD_CANCELED = "THEMIKE10452.TOOLS.DOWNLOAD.CANCELED";
-    public static String ACTION_INSTALL = "THEMIKE10452.TOOLS.KERNEL.INSTALL";
-    public static String ACTION_DISMISS = "THEMIKE10452.TOOLS.DISMISS";
+    public static final String EVENT_DOWNLOAD_COMPLETE = "THEMIKE10452.TOOLS.DOWNLOAD.COMPLETE";
+    public static final String EVENT_DOWNLOADEDFILE_EXISTS = "THEMIKE10452.TOOLS.DOWNLOAD.FILE.EXISTS";
+    public static final String EVENT_DOWNLOAD_CANCELED = "THEMIKE10452.TOOLS.DOWNLOAD.CANCELED";
+    public static final String ACTION_INSTALL = "THEMIKE10452.TOOLS.KERNEL.INSTALL";
+    public static final String ACTION_DISMISS = "THEMIKE10452.TOOLS.DISMISS";
 
     public static boolean isDownloading;
     public static Activity activity;

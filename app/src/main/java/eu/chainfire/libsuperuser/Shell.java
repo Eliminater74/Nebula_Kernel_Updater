@@ -42,11 +42,15 @@ import eu.chainfire.libsuperuser.StreamGobbler.OnLineListener;
 /**
  * Class providing functionality to execute commands in a (root) shell
  */
-public class Shell {
-    protected static String[] availableTestCommands = {
+public enum Shell {
+    ;
+    protected static final String[] availableTestCommands = {
             "echo -BOC-",
             "id"
     };
+
+    private Shell() {
+    }
 
     /**
      * <p>
@@ -298,7 +302,12 @@ public class Shell {
     /**
      * This class provides utility functions to easily execute commands using SH
      */
-    public static class SH {
+    public static enum SH {
+        ;
+
+        private SH() {
+        }
+
         /**
          * Runs command and return output
          *
@@ -337,11 +346,15 @@ public class Shell {
      * (root shell), as well as detecting whether or not root is available, and
      * if so which version.
      */
-    public static class SU {
+    public static enum SU {
+        ;
         private static final String[] suVersion = {
                 null, null
         };
         private static Boolean isSELinuxEnforcing;
+
+        private SU() {
+        }
 
         /**
          * Runs command as root (if available) and return output
@@ -600,9 +613,9 @@ public class Shell {
         private final OnCommandLineListener onCommandLineListener;
         private final String marker;
 
-        public Command(String[] commands, int code,
-                       OnCommandResultListener onCommandResultListener,
-                       OnCommandLineListener onCommandLineListener) {
+        private Command(String[] commands, int code,
+                        OnCommandResultListener onCommandResultListener,
+                        OnCommandLineListener onCommandLineListener) {
             this.commands = commands;
             this.code = code;
             this.onCommandResultListener = onCommandResultListener;
@@ -999,7 +1012,7 @@ public class Shell {
      * callbacks is thread-safe.
      * </p>
      */
-    public static class Interactive {
+    public static final class Interactive {
         private final Handler handler;
         private final boolean autoHandler;
         private final String shell;

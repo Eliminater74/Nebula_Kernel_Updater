@@ -52,6 +52,7 @@ import java.net.URL;
 import java.util.Scanner;
 
 
+@SuppressWarnings("ALL")
 public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     public static SharedPreferences preferences;

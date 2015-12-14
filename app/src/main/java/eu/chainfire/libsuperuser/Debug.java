@@ -24,7 +24,8 @@ import com.nebula.kernelupdater.BuildConfig;
 /**
  * Utility class for logging and debug features that (by default) does nothing when not in debug mode
  */
-public class Debug {
+public enum Debug {
+    ;
 
     // ----- DEBUGGING -----
 
@@ -40,6 +41,9 @@ public class Debug {
     private static boolean debug = BuildConfig.DEBUG;
     private static OnLogListener logListener = null;
     private static boolean sanityChecks = true;
+
+    private Debug() {
+    }
 
     /**
      * <p>Is debug mode enabled ?</p>

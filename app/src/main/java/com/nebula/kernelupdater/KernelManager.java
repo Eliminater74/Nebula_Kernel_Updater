@@ -8,7 +8,7 @@ import java.util.Iterator;
 /**
  * Created by Mike on 10/23/2014.
  */
-public class KernelManager {
+public final class KernelManager {
 
     public static boolean baseMatchedOnce = false, apiMatchedOnce = false;
 

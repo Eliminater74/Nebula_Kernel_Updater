@@ -25,7 +25,7 @@ import android.widget.Toast;
  * toasts and AsyncTasks you are likely to run into
  */
 public class Application extends android.app.Application {
-    private static Handler mApplicationHandler = new Handler();
+    private static final Handler mApplicationHandler = new Handler();
 
     /**
      * Shows a toast message

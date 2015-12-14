@@ -11,7 +11,7 @@ import android.widget.TextView;
  */
 public class CustomProgressDialog extends Dialog {
 
-    public static String UNIT = " MB";
+    public static final String UNIT = " MB";
     private ProgressBar progressBar;
     private int MAX;
     private TextView FILENAME, FILESIZE, DOWNLOADED, PERCENTAGE;
