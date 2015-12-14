@@ -22,5 +22,6 @@
         android:gravity="center_vertical"
         android:paddingEnd="0dp"
         android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall" />
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+        android:textIsSelectable="true" />
 </LinearLayout>

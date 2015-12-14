@@ -11,9 +11,9 @@
   <string name="minutes">분</string>
   <string name="defaultt">기본</string>
   <string name="undefined">정의되지 않음</string>
-  <string name="onReboot">재시작 중...</string>
+  <string name="onReboot">재시작 중…</string>
   <string name="proxy_list">프록시 목록</string>
-  <string name="dialog_title_downloading">다운로드 중...</string>
+  <string name="dialog_title_downloading">다운로드 중…</string>
   <string name="dialog_title_changelog">변경내역</string>
   <string name="dialog_title_readyToInstall">설치 준비 완료</string>
   <string name="dialog_title_md5mismatch">MD5 불일치</string>
@@ -26,7 +26,7 @@
   <string name="field_filesize">파일 크기</string>
   <string name="filed_filename">파일 이름</string>
   <string name="field_downloaded">다운로드됨</string>
-  <string name="msg_pleaseWait">잠시만 기다려 주십시오...</string>
+  <string name="msg_pleaseWait">잠시만 기다려 주십시오…</string>
   <string name="msg_up_to_date">최신 버전입니다</string>
   <string name="msg_failed_try_again">실패하였습니다, 나중에 다시 시도해주십시오</string>
   <string name="msg_device_not_supported">지원되지 않는 장치입니다</string>

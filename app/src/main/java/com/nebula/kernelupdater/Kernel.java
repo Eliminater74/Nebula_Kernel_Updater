@@ -9,52 +9,22 @@ import java.util.Set;
  */
 public class Kernel implements Comparable<Kernel> {
 
-    public Set<String> getBASE() {
-        String[] all = BASE.split(",");
-        Set<String> set = new HashSet(all.length);
-        for (String s : all)
-            set.add(s.trim().toUpperCase());
-        return set;
-    }
-
-    public Set<String> getAPI() {
-        String[] all = API.split(",");
-        Set<String> set = new HashSet(all.length);
-        for (String s : all)
-            set.add(s.trim().toUpperCase());
-        return set;
-    }
-
-    public String getVERSION() {
-        return VERSION;
-    }
-
-    public String getZIPNAME() {
-        return ZIPNAME;
-    }
-
-    public String getHTTPLINK() {
-        return HTTPLINK;
-    }
-
-    public boolean isTestBuild() {
-        return ISTESTBUILD;
-    }
-
-    public String getMD5() {
-        return MD5;
-    }
-
-    private String PARAMS, BASE, API, VERSION, ZIPNAME, HTTPLINK, MD5;
+    private final String PARAMS;
+    private String BASE;
+    private String API;
+    private String VERSION;
+    private String ZIPNAME;
+    private String HTTPLINK;
+    private String MD5;
     private boolean ISTESTBUILD;
 
     public Kernel(String parameters) {
-        PARAMS = new String(parameters);
+        this.PARAMS = new String(parameters);
 
-        if (PARAMS == null)
+        if (this.PARAMS == null)
             return;
 
-        Scanner s = new Scanner(PARAMS);
+        Scanner s = new Scanner(this.PARAMS);
 
         try {
             String line;
@@ -62,20 +32,20 @@ public class Kernel implements Comparable<Kernel> {
                 line = s.nextLine().trim();
                 if (line.length() > 0 && line.startsWith("_")) {
                     if (line.contains(Keys.KEY_KERNEL_BASE))
-                        BASE = line.split(":=")[1].trim();
+                        this.BASE = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_API))
-                        API = line.split(":=")[1].trim();
+                        this.API = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_VERSION))
-                        VERSION = line.split(":=")[1].trim();
+                        this.VERSION = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_ZIPNAME))
-                        ZIPNAME = line.split(":=")[1].trim();
+                        this.ZIPNAME = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_HTTPLINK))
-                        HTTPLINK = line.split(":=")[1].trim();
+                        this.HTTPLINK = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_MD5))
-                        MD5 = line.split(":=")[1].trim();
+                        this.MD5 = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_test))
                         try {
-                            ISTESTBUILD = Boolean.parseBoolean(line.split(":=")[1].trim());
+                            this.ISTESTBUILD = Boolean.parseBoolean(line.split(":=")[1].trim());
                         } catch (Exception ignored) {
 
                         }
@@ -86,13 +56,58 @@ public class Kernel implements Comparable<Kernel> {
         }
     }
 
-    @Override
-    public String toString() {
-        return String.format("%s %s %s", VERSION, ISTESTBUILD, API);
+    public Set<String> getBASE() {
+        String[] all = this.BASE.split(",");
+        Set<String> set = new HashSet(all.length);
+        for (String s : all)
+            set.add(s.trim().toUpperCase());
+        return set;
+    }
+
+    public Set<String> getAPI() {
+        String[] all = this.API.split(",");
+        Set<String> set = new HashSet(all.length);
+        for (String s : all)
+            set.add(s.trim().toUpperCase());
+        return set;
+    }
+
+    public String getVERSION() {
+        return this.VERSION;
+    }
+
+    public String getZIPNAME() {
+        return this.ZIPNAME;
+    }
+
+    public String getHTTPLINK() {
+        return this.HTTPLINK;
+    }
+
+    public boolean isTestBuild() {
+        return this.ISTESTBUILD;
+    }
+
+    public String getMD5() {
+        return this.MD5;
     }
 
     @Override
     public int compareTo(Kernel another) {
-        return getMD5().compareTo(another.getMD5());
+        return this.getMD5().compareTo(another.getMD5());
+    }
+
+    @Override
+    public String toString() {
+        return "Kernel{" +
+                "PARAMS='" + this.PARAMS + '\'' +
+                ", BASE='" + this.BASE + '\'' +
+                ", API='" + this.API + '\'' +
+                ", VERSION='" + this.VERSION + '\'' +
+                ", ZIPNAME='" + this.ZIPNAME + '\'' +
+                ", HTTPLINK='" + this.HTTPLINK + '\'' +
+                ", MD5='" + this.MD5 + '\'' +
+                ", ISTESTBUILD=" + this.ISTESTBUILD +
+                '}';
     }
 }

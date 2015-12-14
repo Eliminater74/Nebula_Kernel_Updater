@@ -16,6 +16,7 @@
 
 package eu.chainfire.libsuperuser;
 
+import android.os.Build.VERSION;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -31,17 +32,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import eu.chainfire.libsuperuser.StreamGobbler.OnLineListener;
 
 /**
  * Class providing functionality to execute commands in a (root) shell
  */
 public class Shell {
-    protected static String[] availableTestCommands = new String[]{
+    protected static String[] availableTestCommands = {
             "echo -BOC-",
             "id"
     };
@@ -64,7 +64,7 @@ public class Shell {
      */
     @Deprecated
     public static List<String> run(String shell, String[] commands, boolean wantSTDERR) {
-        return run(shell, commands, null, wantSTDERR);
+        return Shell.run(shell, commands, null, wantSTDERR);
     }
 
     /**
@@ -131,7 +131,7 @@ public class Shell {
                 }
                 int i = 0;
                 environment = new String[newEnvironment.size()];
-                for (Map.Entry<String, String> entry : newEnvironment.entrySet()) {
+                for (Entry<String, String> entry : newEnvironment.entrySet()) {
                     environment[i] = entry.getKey() + "=" + entry.getValue();
                     i++;
                 }
@@ -181,7 +181,7 @@ public class Shell {
             process.destroy();
 
             // in case of su, 255 usually indicates access denied
-            if (SU.isSU(shell) && (process.exitValue() == 255)) {
+            if (Shell.SU.isSU(shell) && process.exitValue() == 255) {
                 res = null;
             }
         } catch (IOException e) {
@@ -243,7 +243,7 @@ public class Shell {
      * Command result callback, notifies the recipient of the completion of a
      * command block, including the (last) exit code, and the full output
      */
-    public interface OnCommandResultListener extends OnResult {
+    public interface OnCommandResultListener extends Shell.OnResult {
         /**
          * <p>
          * Command result callback
@@ -256,7 +256,7 @@ public class Shell {
          * in a deadlock
          * </p>
          * <p>
-         * See {@link Shell.Interactive} for threading details
+         * See {@link Interactive} for threading details
          * </p>
          *
          * @param commandCode Value previously supplied to addCommand
@@ -271,7 +271,7 @@ public class Shell {
      * buffering It also notifies the recipient of the completion of a command
      * block, including the (last) exit code.
      */
-    public interface OnCommandLineListener extends OnResult, OnLineListener {
+    public interface OnCommandLineListener extends Shell.OnResult, StreamGobbler.OnLineListener {
         /**
          * <p>
          * Command result callback
@@ -284,7 +284,7 @@ public class Shell {
          * in a deadlock
          * </p>
          * <p>
-         * See {@link Shell.Interactive} for threading details
+         * See {@link Interactive} for threading details
          * </p>
          *
          * @param commandCode Value previously supplied to addCommand
@@ -336,10 +336,10 @@ public class Shell {
      * if so which version.
      */
     public static class SU {
-        private static Boolean isSELinuxEnforcing = null;
-        private static String[] suVersion = new String[]{
+        private static final String[] suVersion = {
                 null, null
         };
+        private static Boolean isSELinuxEnforcing;
 
         /**
          * Runs command as root (if available) and return output
@@ -386,8 +386,8 @@ public class Shell {
         public static boolean available() {
             // this is only one of many ways this can be done
 
-            List<String> ret = run(Shell.availableTestCommands);
-            return Shell.parseAvailableResult(ret, true);
+            List<String> ret = Shell.SU.run(availableTestCommands);
+            return parseAvailableResult(ret, true);
         }
 
         /**
@@ -411,40 +411,42 @@ public class Shell {
          *                 internal version
          * @return String containing the su version or null
          */
-        public static synchronized String version(boolean internal) {
-            int idx = internal ? 0 : 1;
-            if (suVersion[idx] == null) {
-                String version = null;
+        public static String version(boolean internal) {
+            synchronized (Shell.SU.class) {
+                int idx = internal ? 0 : 1;
+                if (Shell.SU.suVersion[idx] == null) {
+                    String version = null;
 
-                List<String> ret = Shell.run(
-                        internal ? "su -V" : "su -v",
-                        new String[]{},
-                        null,
-                        false
-                );
+                    List<String> ret = Shell.run(
+                            internal ? "su -V" : "su -v",
+                            new String[]{},
+                            null,
+                            false
+                    );
 
-                if (ret != null) {
-                    for (String line : ret) {
-                        if (!internal) {
-                            if (line.contains(".")) {
-                                version = line;
-                                break;
-                            }
-                        } else {
-                            try {
-                                if (Integer.parseInt(line) > 0) {
+                    if (ret != null) {
+                        for (String line : ret) {
+                            if (!internal) {
+                                if (line.contains(".")) {
                                     version = line;
                                     break;
                                 }
-                            } catch (NumberFormatException e) {
+                            } else {
+                                try {
+                                    if (Integer.parseInt(line) > 0) {
+                                        version = line;
+                                        break;
+                                    }
+                                } catch (NumberFormatException e) {
+                                }
                             }
                         }
                     }
-                }
 
-                suVersion[idx] = version;
+                    Shell.SU.suVersion[idx] = version;
+                }
+                return Shell.SU.suVersion[idx];
             }
-            return suVersion[idx];
         }
 
         /**
@@ -482,15 +484,15 @@ public class Shell {
             // su[ --context <context>][ <uid>]
             String shell = "su";
 
-            if ((context != null) && isSELinuxEnforcing()) {
-                String display = version(false);
-                String internal = version(true);
+            if (context != null && Shell.SU.isSELinuxEnforcing()) {
+                String display = Shell.SU.version(false);
+                String internal = Shell.SU.version(true);
 
                 // We only know the format for SuperSU v1.90+ right now
-                if ((display != null) &&
-                        (internal != null) &&
-                        (display.endsWith("SUPERSU")) &&
-                        (Integer.valueOf(internal) >= 190)) {
+                if (display != null &&
+                        internal != null &&
+                        display.endsWith("SUPERSU") &&
+                        Integer.valueOf(internal) >= 190) {
                     shell = String.format(Locale.ENGLISH, "%s --context %s", shell, context);
                 }
             }
@@ -512,7 +514,7 @@ public class Shell {
          * @return Shell command
          */
         public static String shellMountMaster() {
-            if (android.os.Build.VERSION.SDK_INT >= 17) {
+            if (VERSION.SDK_INT >= 17) {
                 return "su --mount-master";
             }
             return "su";
@@ -524,42 +526,44 @@ public class Shell {
          * @return true if SELinux set to enforcing, or false in the case of
          * permissive or not present
          */
-        public static synchronized boolean isSELinuxEnforcing() {
-            if (isSELinuxEnforcing == null) {
-                Boolean enforcing = null;
+        public static boolean isSELinuxEnforcing() {
+            synchronized (Shell.SU.class) {
+                if (Shell.SU.isSELinuxEnforcing == null) {
+                    Boolean enforcing = null;
 
-                // First known firmware with SELinux built-in was a 4.2 (17)
-                // leak
-                if (android.os.Build.VERSION.SDK_INT >= 17) {
-                    // Detect enforcing through sysfs, not always present
-                    if (enforcing == null) {
-                        File f = new File("/sys/fs/selinux/enforce");
-                        if (f.exists()) {
-                            try {
-                                InputStream is = new FileInputStream("/sys/fs/selinux/enforce");
+                    // First known firmware with SELinux built-in was a 4.2 (17)
+                    // leak
+                    if (VERSION.SDK_INT >= 17) {
+                        // Detect enforcing through sysfs, not always present
+                        if (enforcing == null) {
+                            File f = new File("/sys/fs/selinux/enforce");
+                            if (f.exists()) {
                                 try {
-                                    enforcing = (is.read() == '1');
-                                } finally {
-                                    is.close();
+                                    InputStream is = new FileInputStream("/sys/fs/selinux/enforce");
+                                    try {
+                                        enforcing = is.read() == '1';
+                                    } finally {
+                                        is.close();
+                                    }
+                                } catch (Exception e) {
                                 }
-                            } catch (Exception e) {
                             }
+                        }
+
+                        // 4.4+ builds are enforcing by default, take the gamble
+                        if (enforcing == null) {
+                            enforcing = VERSION.SDK_INT >= 19;
                         }
                     }
 
-                    // 4.4+ builds are enforcing by default, take the gamble
                     if (enforcing == null) {
-                        enforcing = (android.os.Build.VERSION.SDK_INT >= 19);
+                        enforcing = false;
                     }
-                }
 
-                if (enforcing == null) {
-                    enforcing = false;
+                    Shell.SU.isSELinuxEnforcing = enforcing;
                 }
-
-                isSELinuxEnforcing = enforcing;
+                return Shell.SU.isSELinuxEnforcing;
             }
-            return isSELinuxEnforcing;
         }
 
         /**
@@ -573,10 +577,12 @@ public class Shell {
          * not impossible.
          * </p>
          */
-        public static synchronized void clearCachedResults() {
-            isSELinuxEnforcing = null;
-            suVersion[0] = null;
-            suVersion[1] = null;
+        public static void clearCachedResults() {
+            synchronized (Shell.SU.class) {
+                Shell.SU.isSELinuxEnforcing = null;
+                Shell.SU.suVersion[0] = null;
+                Shell.SU.suVersion[1] = null;
+            }
         }
     }
 
@@ -584,52 +590,52 @@ public class Shell {
      * Internal class to store command block properties
      */
     private static class Command {
-        private static int commandCounter = 0;
+        private static int commandCounter;
 
         private final String[] commands;
         private final int code;
-        private final OnCommandResultListener onCommandResultListener;
-        private final OnCommandLineListener onCommandLineListener;
+        private final Shell.OnCommandResultListener onCommandResultListener;
+        private final Shell.OnCommandLineListener onCommandLineListener;
         private final String marker;
 
         public Command(String[] commands, int code,
-                       OnCommandResultListener onCommandResultListener,
-                       OnCommandLineListener onCommandLineListener) {
+                       Shell.OnCommandResultListener onCommandResultListener,
+                       Shell.OnCommandLineListener onCommandLineListener) {
             this.commands = commands;
             this.code = code;
             this.onCommandResultListener = onCommandResultListener;
             this.onCommandLineListener = onCommandLineListener;
-            this.marker = UUID.randomUUID().toString() + String.format("-%08x", ++commandCounter);
+            marker = UUID.randomUUID() + String.format("-%08x", ++Command.commandCounter);
         }
     }
 
     /**
-     * Builder class for {@link Shell.Interactive}
+     * Builder class for {@link Interactive}
      */
     public static class Builder {
-        private Handler handler = null;
+        private final List<Shell.Command> commands = new LinkedList<Shell.Command>();
+        private final Map<String, String> environment = new HashMap<String, String>();
+        private Handler handler;
         private boolean autoHandler = true;
         private String shell = "sh";
-        private boolean wantSTDERR = false;
-        private List<Command> commands = new LinkedList<Command>();
-        private Map<String, String> environment = new HashMap<String, String>();
-        private OnLineListener onSTDOUTLineListener = null;
-        private OnLineListener onSTDERRLineListener = null;
-        private int watchdogTimeout = 0;
+        private boolean wantSTDERR;
+        private StreamGobbler.OnLineListener onSTDOUTLineListener;
+        private StreamGobbler.OnLineListener onSTDERRLineListener;
+        private int watchdogTimeout;
 
         /**
          * <p>
          * Set a custom handler that will be used to post all callbacks to
          * </p>
          * <p>
-         * See {@link Shell.Interactive} for further details on threading and
+         * See {@link Interactive} for further details on threading and
          * handlers
          * </p>
          *
          * @param handler Handler to use
          * @return This Builder object for method chaining
          */
-        public Builder setHandler(Handler handler) {
+        public Shell.Builder setHandler(Handler handler) {
             this.handler = handler;
             return this;
         }
@@ -639,14 +645,14 @@ public class Shell {
          * Automatically create a handler if possible ? Default to true
          * </p>
          * <p>
-         * See {@link Shell.Interactive} for further details on threading and
+         * See {@link Interactive} for further details on threading and
          * handlers
          * </p>
          *
          * @param autoHandler Auto-create handler ?
          * @return This Builder object for method chaining
          */
-        public Builder setAutoHandler(boolean autoHandler) {
+        public Shell.Builder setAutoHandler(boolean autoHandler) {
             this.autoHandler = autoHandler;
             return this;
         }
@@ -658,7 +664,7 @@ public class Shell {
          * @param shell Shell to use
          * @return This Builder object for method chaining
          */
-        public Builder setShell(String shell) {
+        public Shell.Builder setShell(String shell) {
             this.shell = shell;
             return this;
         }
@@ -668,8 +674,8 @@ public class Shell {
          *
          * @return This Builder object for method chaining
          */
-        public Builder useSH() {
-            return setShell("sh");
+        public Shell.Builder useSH() {
+            return this.setShell("sh");
         }
 
         /**
@@ -677,8 +683,8 @@ public class Shell {
          *
          * @return This Builder object for method chaining
          */
-        public Builder useSU() {
-            return setShell("su");
+        public Shell.Builder useSU() {
+            return this.setShell("su");
         }
 
         /**
@@ -687,7 +693,7 @@ public class Shell {
          * @param wantSTDERR Want error output ?
          * @return This Builder object for method chaining
          */
-        public Builder setWantSTDERR(boolean wantSTDERR) {
+        public Shell.Builder setWantSTDERR(boolean wantSTDERR) {
             this.wantSTDERR = wantSTDERR;
             return this;
         }
@@ -699,8 +705,8 @@ public class Shell {
          * @param value Value of the environment variable
          * @return This Builder object for method chaining
          */
-        public Builder addEnvironment(String key, String value) {
-            environment.put(key, value);
+        public Shell.Builder addEnvironment(String key, String value) {
+            this.environment.put(key, value);
             return this;
         }
 
@@ -710,8 +716,8 @@ public class Shell {
          * @param addEnvironment Map of environment variables
          * @return This Builder object for method chaining
          */
-        public Builder addEnvironment(Map<String, String> addEnvironment) {
-            environment.putAll(addEnvironment);
+        public Shell.Builder addEnvironment(Map<String, String> addEnvironment) {
+            this.environment.putAll(addEnvironment);
             return this;
         }
 
@@ -721,8 +727,8 @@ public class Shell {
          * @param command Command to execute
          * @return This Builder object for method chaining
          */
-        public Builder addCommand(String command) {
-            return addCommand(command, 0, null);
+        public Shell.Builder addCommand(String command) {
+            return this.addCommand(command, 0, null);
         }
 
         /**
@@ -731,7 +737,7 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param command                 Command to execute
@@ -739,9 +745,9 @@ public class Shell {
          * @param onCommandResultListener Callback to be called on completion
          * @return This Builder object for method chaining
          */
-        public Builder addCommand(String command, int code,
-                                  OnCommandResultListener onCommandResultListener) {
-            return addCommand(new String[]{
+        public Shell.Builder addCommand(String command, int code,
+                                        Shell.OnCommandResultListener onCommandResultListener) {
+            return this.addCommand(new String[]{
                     command
             }, code, onCommandResultListener);
         }
@@ -752,8 +758,8 @@ public class Shell {
          * @param commands Commands to execute
          * @return This Builder object for method chaining
          */
-        public Builder addCommand(List<String> commands) {
-            return addCommand(commands, 0, null);
+        public Shell.Builder addCommand(List<String> commands) {
+            return this.addCommand(commands, 0, null);
         }
 
         /**
@@ -763,7 +769,7 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param commands                Commands to execute
@@ -772,9 +778,9 @@ public class Shell {
          *                                (of all commands)
          * @return This Builder object for method chaining
          */
-        public Builder addCommand(List<String> commands, int code,
-                                  OnCommandResultListener onCommandResultListener) {
-            return addCommand(commands.toArray(new String[commands.size()]), code,
+        public Shell.Builder addCommand(List<String> commands, int code,
+                                        Shell.OnCommandResultListener onCommandResultListener) {
+            return this.addCommand(commands.toArray(new String[commands.size()]), code,
                     onCommandResultListener);
         }
 
@@ -784,8 +790,8 @@ public class Shell {
          * @param commands Commands to execute
          * @return This Builder object for method chaining
          */
-        public Builder addCommand(String[] commands) {
-            return addCommand(commands, 0, null);
+        public Shell.Builder addCommand(String[] commands) {
+            return this.addCommand(commands, 0, null);
         }
 
         /**
@@ -795,7 +801,7 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param commands                Commands to execute
@@ -804,9 +810,9 @@ public class Shell {
          *                                (of all commands)
          * @return This Builder object for method chaining
          */
-        public Builder addCommand(String[] commands, int code,
-                                  OnCommandResultListener onCommandResultListener) {
-            this.commands.add(new Command(commands, code, onCommandResultListener, null));
+        public Shell.Builder addCommand(String[] commands, int code,
+                                        Shell.OnCommandResultListener onCommandResultListener) {
+            this.commands.add(new Shell.Command(commands, code, onCommandResultListener, null));
             return this;
         }
 
@@ -816,14 +822,14 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param onLineListener Callback to be called for each line
          * @return This Builder object for method chaining
          */
-        public Builder setOnSTDOUTLineListener(OnLineListener onLineListener) {
-            this.onSTDOUTLineListener = onLineListener;
+        public Shell.Builder setOnSTDOUTLineListener(StreamGobbler.OnLineListener onLineListener) {
+            onSTDOUTLineListener = onLineListener;
             return this;
         }
 
@@ -833,14 +839,14 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param onLineListener Callback to be called for each line
          * @return This Builder object for method chaining
          */
-        public Builder setOnSTDERRLineListener(OnLineListener onLineListener) {
-            this.onSTDERRLineListener = onLineListener;
+        public Shell.Builder setOnSTDERRLineListener(StreamGobbler.OnLineListener onLineListener) {
+            onSTDERRLineListener = onLineListener;
             return this;
         }
 
@@ -862,7 +868,7 @@ public class Shell {
          * @param watchdogTimeout Timeout, in seconds; 0 to disable
          * @return This Builder object for method chaining
          */
-        public Builder setWatchdogTimeout(int watchdogTimeout) {
+        public Shell.Builder setWatchdogTimeout(int watchdogTimeout) {
             this.watchdogTimeout = watchdogTimeout;
             return this;
         }
@@ -878,25 +884,25 @@ public class Shell {
          * @param useMinimal true for reduced output, false for full output
          * @return This Builder object for method chaining
          */
-        public Builder setMinimalLogging(boolean useMinimal) {
+        public Shell.Builder setMinimalLogging(boolean useMinimal) {
             Debug.setLogTypeEnabled(Debug.LOG_COMMAND | Debug.LOG_OUTPUT, !useMinimal);
             return this;
         }
 
         /**
-         * Construct a {@link Shell.Interactive} instance, and start the shell
+         * Construct a {@link Interactive} instance, and start the shell
          */
         public Interactive open() {
             return new Interactive(this, null);
         }
 
         /**
-         * Construct a {@link Shell.Interactive} instance, try to start the
+         * Construct a {@link Interactive} instance, try to start the
          * shell, and call onCommandResultListener to report success or failure
          *
          * @param onCommandResultListener Callback to return shell open status
          */
-        public Interactive open(OnCommandResultListener onCommandResultListener) {
+        public Interactive open(Shell.OnCommandResultListener onCommandResultListener) {
             return new Interactive(this, onCommandResultListener);
         }
     }
@@ -929,7 +935,7 @@ public class Shell {
      * something like <em>'ls -lR /'</em> will probably have you run out of
      * memory when using a {@link Shell.OnCommandResultListener}. A work-around
      * is to not supply this callback, but using (only)
-     * {@link Shell.Builder#setOnSTDOUTLineListener(OnLineListener)}. This way,
+     * {@link Shell.Builder#setOnSTDOUTLineListener(StreamGobbler.OnLineListener)}. This way,
      * an internal buffer will not be created and wasting your memory.
      * </p>
      * <h3>Callbacks, threads and handlers</h3>
@@ -970,40 +976,40 @@ public class Shell {
         private final boolean autoHandler;
         private final String shell;
         private final boolean wantSTDERR;
-        private final List<Command> commands;
+        private final List<Shell.Command> commands;
         private final Map<String, String> environment;
-        private final OnLineListener onSTDOUTLineListener;
-        private final OnLineListener onSTDERRLineListener;
+        private final StreamGobbler.OnLineListener onSTDOUTLineListener;
+        private final StreamGobbler.OnLineListener onSTDERRLineListener;
         private int watchdogTimeout;
 
-        private Process process = null;
-        private DataOutputStream STDIN = null;
-        private StreamGobbler STDOUT = null;
-        private StreamGobbler STDERR = null;
-        private ScheduledThreadPoolExecutor watchdog = null;
+        private Process process;
+        private DataOutputStream STDIN;
+        private StreamGobbler STDOUT;
+        private StreamGobbler STDERR;
+        private ScheduledThreadPoolExecutor watchdog;
 
-        private volatile boolean running = false;
+        private volatile boolean running;
         private volatile boolean idle = true; // read/write only synchronized
         private volatile boolean closed = true;
-        private volatile int callbacks = 0;
+        private volatile int callbacks;
         private volatile int watchdogCount;
 
-        private Object idleSync = new Object();
-        private Object callbackSync = new Object();
+        private final Object idleSync = new Object();
+        private final Object callbackSync = new Object();
 
-        private volatile int lastExitCode = 0;
-        private volatile String lastMarkerSTDOUT = null;
-        private volatile String lastMarkerSTDERR = null;
-        private volatile Command command = null;
-        private volatile List<String> buffer = null;
+        private volatile int lastExitCode;
+        private volatile String lastMarkerSTDOUT;
+        private volatile String lastMarkerSTDERR;
+        private volatile Shell.Command command;
+        private volatile List<String> buffer;
 
         /**
          * The only way to create an instance: Shell.Builder::open()
          *
          * @param builder Builder class to take values from
          */
-        private Interactive(final Builder builder,
-                            final OnCommandResultListener onCommandResultListener) {
+        private Interactive(final Shell.Builder builder,
+                            final Shell.OnCommandResultListener onCommandResultListener) {
             autoHandler = builder.autoHandler;
             shell = builder.shell;
             wantSTDERR = builder.wantSTDERR;
@@ -1017,7 +1023,7 @@ public class Shell {
             // gobbling threads
             // to whichever thread created us. Would normally do this in open(),
             // but then we could not declare handler as final
-            if ((Looper.myLooper() != null) && (builder.handler == null) && autoHandler) {
+            if (Looper.myLooper() != null && builder.handler == null && autoHandler) {
                 handler = new Handler();
             } else {
                 handler = builder.handler;
@@ -1028,7 +1034,7 @@ public class Shell {
                 return;
             } else if (ret == false) {
                 onCommandResultListener.onCommandResult(0,
-                        OnCommandResultListener.SHELL_EXEC_FAILED, null);
+                        Shell.OnCommandResultListener.SHELL_EXEC_FAILED, null);
                 return;
             }
 
@@ -1036,12 +1042,13 @@ public class Shell {
             // the user-specified
             // timeout for all subsequent operations
             watchdogTimeout = 60;
-            addCommand(Shell.availableTestCommands, 0, new OnCommandResultListener() {
+            addCommand(Shell.availableTestCommands, 0, new Shell.OnCommandResultListener() {
+                @Override
                 public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                    if (exitCode == OnCommandResultListener.SHELL_RUNNING &&
+                    if (exitCode == Shell.OnCommandResultListener.SHELL_RUNNING &&
                             Shell.parseAvailableResult(output, Shell.SU.isSU(shell)) != true) {
                         // shell is up, but it's brain-damaged
-                        exitCode = OnCommandResultListener.SHELL_WRONG_UID;
+                        exitCode = Shell.OnCommandResultListener.SHELL_WRONG_UID;
                     }
                     watchdogTimeout = builder.watchdogTimeout;
                     onCommandResultListener.onCommandResult(0, exitCode, output);
@@ -1065,7 +1072,7 @@ public class Shell {
          * @param command Command to execute
          */
         public void addCommand(String command) {
-            addCommand(command, 0, (OnCommandResultListener) null);
+            addCommand(command, 0, (Shell.OnCommandResultListener) null);
         }
 
         /**
@@ -1074,7 +1081,7 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param command                 Command to execute
@@ -1082,7 +1089,7 @@ public class Shell {
          * @param onCommandResultListener Callback to be called on completion
          */
         public void addCommand(String command, int code,
-                               OnCommandResultListener onCommandResultListener) {
+                               Shell.OnCommandResultListener onCommandResultListener) {
             addCommand(new String[]{
                     command
             }, code, onCommandResultListener);
@@ -1096,14 +1103,14 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param command               Command to execute
          * @param code                  User-defined value passed back to the callback
          * @param onCommandLineListener Callback
          */
-        public void addCommand(String command, int code, OnCommandLineListener onCommandLineListener) {
+        public void addCommand(String command, int code, Shell.OnCommandLineListener onCommandLineListener) {
             addCommand(new String[]{
                     command
             }, code, onCommandLineListener);
@@ -1115,7 +1122,7 @@ public class Shell {
          * @param commands Commands to execute
          */
         public void addCommand(List<String> commands) {
-            addCommand(commands, 0, (OnCommandResultListener) null);
+            addCommand(commands, 0, (Shell.OnCommandResultListener) null);
         }
 
         /**
@@ -1125,7 +1132,7 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param commands                Commands to execute
@@ -1134,7 +1141,7 @@ public class Shell {
          *                                (of all commands)
          */
         public void addCommand(List<String> commands, int code,
-                               OnCommandResultListener onCommandResultListener) {
+                               Shell.OnCommandResultListener onCommandResultListener) {
             addCommand(commands.toArray(new String[commands.size()]), code, onCommandResultListener);
         }
 
@@ -1146,7 +1153,7 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param commands              Commands to execute
@@ -1154,7 +1161,7 @@ public class Shell {
          * @param onCommandLineListener Callback
          */
         public void addCommand(List<String> commands, int code,
-                               OnCommandLineListener onCommandLineListener) {
+                               Shell.OnCommandLineListener onCommandLineListener) {
             addCommand(commands.toArray(new String[commands.size()]), code, onCommandLineListener);
         }
 
@@ -1164,7 +1171,7 @@ public class Shell {
          * @param commands Commands to execute
          */
         public void addCommand(String[] commands) {
-            addCommand(commands, 0, (OnCommandResultListener) null);
+            addCommand(commands, 0, (Shell.OnCommandResultListener) null);
         }
 
         /**
@@ -1174,7 +1181,7 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param commands                Commands to execute
@@ -1182,10 +1189,12 @@ public class Shell {
          * @param onCommandResultListener Callback to be called on completion
          *                                (of all commands)
          */
-        public synchronized void addCommand(String[] commands, int code,
-                                            OnCommandResultListener onCommandResultListener) {
-            this.commands.add(new Command(commands, code, onCommandResultListener, null));
-            runNextCommand();
+        public void addCommand(String[] commands, int code,
+                               Shell.OnCommandResultListener onCommandResultListener) {
+            synchronized (this) {
+                this.commands.add(new Shell.Command(commands, code, onCommandResultListener, null));
+                runNextCommand();
+            }
         }
 
         /**
@@ -1196,17 +1205,19 @@ public class Shell {
          * </p>
          * <p>
          * The thread on which the callback executes is dependent on various
-         * factors, see {@link Shell.Interactive} for further details
+         * factors, see {@link Interactive} for further details
          * </p>
          *
          * @param commands              Commands to execute
          * @param code                  User-defined value passed back to the callback
          * @param onCommandLineListener Callback
          */
-        public synchronized void addCommand(String[] commands, int code,
-                                            OnCommandLineListener onCommandLineListener) {
-            this.commands.add(new Command(commands, code, null, onCommandLineListener));
-            runNextCommand();
+        public void addCommand(String[] commands, int code,
+                               Shell.OnCommandLineListener onCommandLineListener) {
+            synchronized (this) {
+                this.commands.add(new Shell.Command(commands, code, null, onCommandLineListener));
+                runNextCommand();
+            }
         }
 
         /**
@@ -1221,36 +1232,38 @@ public class Shell {
          * Called from a ScheduledThreadPoolExecutor timer thread every second
          * when there is an outstanding command
          */
-        private synchronized void handleWatchdog() {
-            final int exitCode;
+        private void handleWatchdog() {
+            synchronized (this) {
+                int exitCode;
 
-            if (watchdog == null)
-                return;
-            if (watchdogTimeout == 0)
-                return;
+                if (watchdog == null)
+                    return;
+                if (watchdogTimeout == 0)
+                    return;
 
-            if (!isRunning()) {
-                exitCode = OnCommandResultListener.SHELL_DIED;
-                Debug.log(String.format("[%s%%] SHELL_DIED", shell.toUpperCase(Locale.ENGLISH)));
-            } else if (watchdogCount++ < watchdogTimeout) {
-                return;
-            } else {
-                exitCode = OnCommandResultListener.WATCHDOG_EXIT;
-                Debug.log(String.format("[%s%%] WATCHDOG_EXIT", shell.toUpperCase(Locale.ENGLISH)));
+                if (!isRunning()) {
+                    exitCode = Shell.OnCommandResultListener.SHELL_DIED;
+                    Debug.log(String.format("[%s%%] SHELL_DIED", shell.toUpperCase(Locale.ENGLISH)));
+                } else if (watchdogCount++ < watchdogTimeout) {
+                    return;
+                } else {
+                    exitCode = Shell.OnCommandResultListener.WATCHDOG_EXIT;
+                    Debug.log(String.format("[%s%%] WATCHDOG_EXIT", shell.toUpperCase(Locale.ENGLISH)));
+                }
+
+                if (handler != null) {
+                    postCallback(command, exitCode, buffer);
+                }
+
+                // prevent multiple callbacks for the same command
+                command = null;
+                buffer = null;
+                idle = true;
+
+                watchdog.shutdown();
+                watchdog = null;
+                kill();
             }
-
-            if (handler != null) {
-                postCallback(command, exitCode, buffer);
-            }
-
-            // prevent multiple callbacks for the same command
-            command = null;
-            buffer = null;
-            idle = true;
-
-            watchdog.shutdown();
-            watchdog = null;
-            kill();
         }
 
         /**
@@ -1292,8 +1305,8 @@ public class Shell {
             if (!running)
                 idle = true;
 
-            if (running && idle && (commands.size() > 0)) {
-                Command command = commands.get(0);
+            if (running && idle && commands.size() > 0) {
+                Shell.Command command = commands.get(0);
                 commands.remove(0);
 
                 buffer = null;
@@ -1330,7 +1343,7 @@ public class Shell {
             } else if (!running) {
                 // our shell died for unknown reasons - abort all submissions
                 while (commands.size() > 0) {
-                    postCallback(commands.remove(0), OnCommandResultListener.SHELL_DIED, null);
+                    postCallback(commands.remove(0), Shell.OnCommandResultListener.SHELL_DIED, null);
                 }
             }
 
@@ -1344,15 +1357,17 @@ public class Shell {
         /**
          * Processes a STDOUT/STDERR line containing an end/exitCode marker
          */
-        private synchronized void processMarker() {
-            if (command.marker.equals(lastMarkerSTDOUT)
-                    && (command.marker.equals(lastMarkerSTDERR))) {
-                postCallback(command, lastExitCode, buffer);
-                stopWatchdog();
-                command = null;
-                buffer = null;
-                idle = true;
-                runNextCommand();
+        private void processMarker() {
+            synchronized (this) {
+                if (command.marker.equals(lastMarkerSTDOUT)
+                        && command.marker.equals(lastMarkerSTDERR)) {
+                    postCallback(command, lastExitCode, buffer);
+                    stopWatchdog();
+                    command = null;
+                    buffer = null;
+                    idle = true;
+                    runNextCommand();
+                }
             }
         }
 
@@ -1362,25 +1377,27 @@ public class Shell {
          * @param line     Line to process
          * @param listener Callback to call or null
          */
-        private synchronized void processLine(String line, OnLineListener listener) {
-            if (listener != null) {
-                if (handler != null) {
-                    final String fLine = line;
-                    final OnLineListener fListener = listener;
+        private void processLine(String line, StreamGobbler.OnLineListener listener) {
+            synchronized (this) {
+                if (listener != null) {
+                    if (handler != null) {
+                        final String fLine = line;
+                        final StreamGobbler.OnLineListener fListener = listener;
 
-                    startCallback();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                fListener.onLine(fLine);
-                            } finally {
-                                endCallback();
+                        startCallback();
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    fListener.onLine(fLine);
+                                } finally {
+                                    endCallback();
+                                }
                             }
-                        }
-                    });
-                } else {
-                    listener.onLine(line);
+                        });
+                    } else {
+                        listener.onLine(line);
+                    }
                 }
             }
         }
@@ -1390,9 +1407,11 @@ public class Shell {
          *
          * @param line Line to add
          */
-        private synchronized void addBuffer(String line) {
-            if (buffer != null) {
-                buffer.add(line);
+        private void addBuffer(String line) {
+            synchronized (this) {
+                if (buffer != null) {
+                    buffer.add(line);
+                }
             }
         }
 
@@ -1408,13 +1427,13 @@ public class Shell {
         /**
          * Schedule a callback to run on the appropriate thread
          */
-        private void postCallback(final Command fCommand, final int fExitCode,
+        private void postCallback(final Shell.Command fCommand, final int fExitCode,
                                   final List<String> fOutput) {
             if (fCommand.onCommandResultListener == null && fCommand.onCommandLineListener == null) {
                 return;
             }
             if (handler == null) {
-                if ((fCommand.onCommandResultListener != null) && (fOutput != null))
+                if (fCommand.onCommandResultListener != null && fOutput != null)
                     fCommand.onCommandResultListener.onCommandResult(fCommand.code, fExitCode,
                             fOutput);
                 if (fCommand.onCommandLineListener != null)
@@ -1426,7 +1445,7 @@ public class Shell {
                 @Override
                 public void run() {
                     try {
-                        if ((fCommand.onCommandResultListener != null) && (fOutput != null))
+                        if (fCommand.onCommandResultListener != null && fOutput != null)
                             fCommand.onCommandResultListener.onCommandResult(fCommand.code,
                                     fExitCode, fOutput);
                         if (fCommand.onCommandLineListener != null)
@@ -1454,89 +1473,91 @@ public class Shell {
 
         /**
          * Internal call that launches the shell, starts gobbling, and starts
-         * executing commands. See {@link Shell.Interactive}
+         * executing commands. See {@link Interactive}
          *
          * @return Opened successfully ?
          */
-        private synchronized boolean open() {
-            Debug.log(String.format("[%s%%] START", shell.toUpperCase(Locale.ENGLISH)));
+        private boolean open() {
+            synchronized (this) {
+                Debug.log(String.format("[%s%%] START", shell.toUpperCase(Locale.ENGLISH)));
 
-            try {
-                // setup our process, retrieve STDIN stream, and STDOUT/STDERR
-                // gobblers
-                if (environment.size() == 0) {
-                    process = Runtime.getRuntime().exec(shell);
-                } else {
-                    Map<String, String> newEnvironment = new HashMap<String, String>();
-                    newEnvironment.putAll(System.getenv());
-                    newEnvironment.putAll(environment);
-                    int i = 0;
-                    String[] env = new String[newEnvironment.size()];
-                    for (Map.Entry<String, String> entry : newEnvironment.entrySet()) {
-                        env[i] = entry.getKey() + "=" + entry.getValue();
-                        i++;
+                try {
+                    // setup our process, retrieve STDIN stream, and STDOUT/STDERR
+                    // gobblers
+                    if (environment.size() == 0) {
+                        process = Runtime.getRuntime().exec(shell);
+                    } else {
+                        Map<String, String> newEnvironment = new HashMap<String, String>();
+                        newEnvironment.putAll(System.getenv());
+                        newEnvironment.putAll(environment);
+                        int i = 0;
+                        String[] env = new String[newEnvironment.size()];
+                        for (Entry<String, String> entry : newEnvironment.entrySet()) {
+                            env[i] = entry.getKey() + "=" + entry.getValue();
+                            i++;
+                        }
+                        process = Runtime.getRuntime().exec(shell, env);
                     }
-                    process = Runtime.getRuntime().exec(shell, env);
-                }
 
-                STDIN = new DataOutputStream(process.getOutputStream());
-                STDOUT = new StreamGobbler(shell.toUpperCase(Locale.ENGLISH) + "-",
-                        process.getInputStream(), new OnLineListener() {
-                    @Override
-                    public void onLine(String line) {
-                        synchronized (Interactive.this) {
-                            if (command == null) {
-                                return;
-                            }
-                            if (line.startsWith(command.marker)) {
-                                try {
-                                    lastExitCode = Integer.valueOf(
-                                            line.substring(command.marker.length() + 1), 10);
-                                } catch (Exception e) {
+                    STDIN = new DataOutputStream(process.getOutputStream());
+                    STDOUT = new StreamGobbler(shell.toUpperCase(Locale.ENGLISH) + "-",
+                            process.getInputStream(), new StreamGobbler.OnLineListener() {
+                        @Override
+                        public void onLine(String line) {
+                            synchronized (Interactive.this) {
+                                if (command == null) {
+                                    return;
                                 }
-                                lastMarkerSTDOUT = command.marker;
-                                processMarker();
-                            } else {
-                                addBuffer(line);
-                                processLine(line, onSTDOUTLineListener);
-                                processLine(line, command.onCommandLineListener);
-                            }
-                        }
-                    }
-                });
-                STDERR = new StreamGobbler(shell.toUpperCase(Locale.ENGLISH) + "*",
-                        process.getErrorStream(), new OnLineListener() {
-                    @Override
-                    public void onLine(String line) {
-                        synchronized (Interactive.this) {
-                            if (command == null) {
-                                return;
-                            }
-                            if (line.startsWith(command.marker)) {
-                                lastMarkerSTDERR = command.marker;
-                                processMarker();
-                            } else {
-                                if (wantSTDERR)
+                                if (line.startsWith(command.marker)) {
+                                    try {
+                                        lastExitCode = Integer.valueOf(
+                                                line.substring(command.marker.length() + 1), 10);
+                                    } catch (Exception e) {
+                                    }
+                                    lastMarkerSTDOUT = command.marker;
+                                    processMarker();
+                                } else {
                                     addBuffer(line);
-                                processLine(line, onSTDERRLineListener);
+                                    processLine(line, onSTDOUTLineListener);
+                                    processLine(line, command.onCommandLineListener);
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                    STDERR = new StreamGobbler(shell.toUpperCase(Locale.ENGLISH) + "*",
+                            process.getErrorStream(), new StreamGobbler.OnLineListener() {
+                        @Override
+                        public void onLine(String line) {
+                            synchronized (Interactive.this) {
+                                if (Interactive.this.command == null) {
+                                    return;
+                                }
+                                if (line.startsWith(Interactive.this.command.marker)) {
+                                    Interactive.this.lastMarkerSTDERR = Interactive.this.command.marker;
+                                    Interactive.this.processMarker();
+                                } else {
+                                    if (Interactive.this.wantSTDERR)
+                                        Interactive.this.addBuffer(line);
+                                    Interactive.this.processLine(line, Interactive.this.onSTDERRLineListener);
+                                }
+                            }
+                        }
+                    });
 
-                // start gobbling and write our commands to the shell
-                STDOUT.start();
-                STDERR.start();
+                    // start gobbling and write our commands to the shell
+                    this.STDOUT.start();
+                    this.STDERR.start();
 
-                running = true;
-                closed = false;
+                    this.running = true;
+                    this.closed = false;
 
-                runNextCommand();
+                    this.runNextCommand();
 
-                return true;
-            } catch (IOException e) {
-                // shell probably not found
-                return false;
+                    return true;
+                } catch (IOException e) {
+                    // shell probably not found
+                    return false;
+                }
             }
         }
 
@@ -1548,13 +1569,13 @@ public class Shell {
          * (if in debug mode) if you try to do this anyway.
          */
         public void close() {
-            boolean _idle = isIdle(); // idle must be checked synchronized
+            boolean _idle = this.isIdle(); // idle must be checked synchronized
 
             synchronized (this) {
-                if (!running)
+                if (!this.running)
                     return;
-                running = false;
-                closed = true;
+                this.running = false;
+                this.closed = true;
             }
 
             // This method should not be called from the main thread unless the
@@ -1566,15 +1587,15 @@ public class Shell {
             }
 
             if (!_idle)
-                waitForIdle();
+                this.waitForIdle();
 
             try {
-                STDIN.write(("exit\n").getBytes("UTF-8"));
-                STDIN.flush();
+                this.STDIN.write("exit\n".getBytes("UTF-8"));
+                this.STDIN.flush();
 
                 // wait for our process to finish, while we gobble away in the
                 // background
-                process.waitFor();
+                this.process.waitFor();
 
                 // make sure our threads are done gobbling, our streams are
                 // closed, and the process is destroyed - while the latter two
@@ -1582,20 +1603,20 @@ public class Shell {
                 // in "normal" Java they are required for guaranteed cleanup of
                 // resources, so lets be safe and do this on Android as well
                 try {
-                    STDIN.close();
+                    this.STDIN.close();
                 } catch (IOException e) {
                 }
-                STDOUT.join();
-                STDERR.join();
-                stopWatchdog();
-                process.destroy();
+                this.STDOUT.join();
+                this.STDERR.join();
+                this.stopWatchdog();
+                this.process.destroy();
             } catch (IOException e) {
                 // shell probably not found
             } catch (InterruptedException e) {
                 // this should really be re-thrown
             }
 
-            Debug.log(String.format("[%s%%] END", shell.toUpperCase(Locale.ENGLISH)));
+            Debug.log(String.format("[%s%%] END", this.shell.toUpperCase(Locale.ENGLISH)));
         }
 
         /**
@@ -1603,17 +1624,19 @@ public class Shell {
          * wedged. Hopefully the StreamGobblers will croak on their own when the
          * other side of the pipe is closed.
          */
-        public synchronized void kill() {
-            running = false;
-            closed = true;
+        public void kill() {
+            synchronized (this) {
+                this.running = false;
+                this.closed = true;
 
-            try {
-                STDIN.close();
-            } catch (IOException e) {
-            }
-            try {
-                process.destroy();
-            } catch (Exception e) {
+                try {
+                    this.STDIN.close();
+                } catch (IOException e) {
+                }
+                try {
+                    this.process.destroy();
+                } catch (Exception e) {
+                }
             }
         }
 
@@ -1623,12 +1646,12 @@ public class Shell {
          * @return Shell running ?
          */
         public boolean isRunning() {
-            if (process == null) {
+            if (this.process == null) {
                 return false;
             }
             try {
                 // if this throws, we're still running
-                process.exitValue();
+                this.process.exitValue();
                 return false;
             } catch (IllegalThreadStateException e) {
             }
@@ -1640,14 +1663,16 @@ public class Shell {
          *
          * @return Shell idle ?
          */
-        public synchronized boolean isIdle() {
-            if (!isRunning()) {
-                idle = true;
-                synchronized (idleSync) {
-                    idleSync.notifyAll();
+        public boolean isIdle() {
+            synchronized (this) {
+                if (!this.isRunning()) {
+                    this.idle = true;
+                    synchronized (this.idleSync) {
+                        this.idleSync.notifyAll();
+                    }
                 }
+                return this.idle;
             }
-            return idle;
         }
 
         /**
@@ -1676,7 +1701,7 @@ public class Shell {
          * on this behavior, you should make certain this is indeed the case.
          * </p>
          * <p>
-         * See {@link Shell.Interactive} for further details on threading and
+         * See {@link Interactive} for further details on threading and
          * handlers
          * </p>
          *
@@ -1688,20 +1713,20 @@ public class Shell {
                 throw new ShellOnMainThreadException(ShellOnMainThreadException.EXCEPTION_WAIT_IDLE);
             }
 
-            if (isRunning()) {
-                synchronized (idleSync) {
-                    while (!idle) {
+            if (this.isRunning()) {
+                synchronized (this.idleSync) {
+                    while (!this.idle) {
                         try {
-                            idleSync.wait();
+                            this.idleSync.wait();
                         } catch (InterruptedException e) {
                             return false;
                         }
                     }
                 }
 
-                if ((handler != null) &&
-                        (handler.getLooper() != null) &&
-                        (handler.getLooper() != Looper.myLooper())) {
+                if (this.handler != null &&
+                        this.handler.getLooper() != null &&
+                        this.handler.getLooper() != Looper.myLooper()) {
                     // If the callbacks are posted to a different thread than
                     // this one, we can wait until all callbacks have called
                     // before returning. If we don't use a Handler at all, the
@@ -1709,10 +1734,10 @@ public class Shell {
                     // use a Handler but we use the same Looper, waiting here
                     // would actually block the callbacks from being called
 
-                    synchronized (callbackSync) {
-                        while (callbacks > 0) {
+                    synchronized (this.callbackSync) {
+                        while (this.callbacks > 0) {
                             try {
-                                callbackSync.wait();
+                                this.callbackSync.wait();
                             } catch (InterruptedException e) {
                                 return false;
                             }
@@ -1730,7 +1755,7 @@ public class Shell {
          * @return Handler used ?
          */
         public boolean hasHandler() {
-            return (handler != null);
+            return this.handler != null;
         }
     }
 }

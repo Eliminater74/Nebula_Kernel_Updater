@@ -11,9 +11,9 @@
   <string name="minutes">Minuten</string>
   <string name="defaultt">Standard</string>
   <string name="undefined">Unbestimmt</string>
-  <string name="onReboot">Neustart ...</string>
+  <string name="onReboot">Neustart …</string>
   <string name="proxy_list">Proxy Liste</string>
-  <string name="dialog_title_downloading">Download im Gange ...</string>
+  <string name="dialog_title_downloading">Download im Gange …</string>
   <string name="dialog_title_changelog">Changelog</string>
   <string name="dialog_title_readyToInstall">Fertig zum installieren</string>
   <string name="dialog_title_md5mismatch">MD5-Summe stimmt nicht überein</string>
@@ -66,7 +66,7 @@
   <string name="settings_btn_receiveBeta">Erlaube beta-Versionen</string>
   <string name="settings_btn_updateSource">URL des Aktualisierungsservers</string>
   <string name="settings_info_useAndroidDM">Benutze den integrierten Downloadmanager von Android</string>
-  <string name="settings_info_useStaticFilename">Benutze die selben Dateinamen für alle Downloads</string>
+  <string name="settings_info_useStaticFilename">Benutze dieselben Dateinamen für alle Downloads</string>
   <string name="prompt_install1">Der Kernel wurde  erfolgreich heruntergeladen
 \nKlicke %1$s zum sofortigen installieren und Neustarten.
 \nKlicke %2$s zum späteren installieren.</string>

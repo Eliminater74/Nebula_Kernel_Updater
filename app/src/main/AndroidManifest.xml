@@ -32,7 +32,7 @@
             android:screenOrientation="portrait" />
 
         <service
-            android:name="com.nebula.kernelupdater.Services.BackgroundAutoCheckService"
+            android:name="com$nebula$kernelupdater$Services$BackgroundAutoCheckService"
             android:enabled="true"
             android:singleUser="true" />
 
@@ -42,7 +42,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.nebula.kernelupdater.FileSelector.FileBrowser"
+            android:name="com$nebula$kernelupdater$FileSelector$FileBrowser"
             android:label="@string/activity_fileBrowser"
             android:screenOrientation="portrait" />
 

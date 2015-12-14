@@ -13,6 +13,7 @@
         android:layout_marginStart="5dp"
         android:scrollHorizontally="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/card_text" />
+        android:textColor="@color/card_text"
+        android:textIsSelectable="true" />
 
 </LinearLayout>

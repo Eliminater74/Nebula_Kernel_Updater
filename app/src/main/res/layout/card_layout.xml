@@ -27,6 +27,7 @@
                 android:layout_marginStart="5dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/card_text"
+                android:textIsSelectable="true"
                 android:textStyle="normal" />
 
             <RelativeLayout

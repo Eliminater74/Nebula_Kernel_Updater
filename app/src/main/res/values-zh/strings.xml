@@ -11,9 +11,9 @@
   <string name="minutes">分钟</string>
   <string name="defaultt">默认</string>
   <string name="undefined">未定义</string>
-  <string name="onReboot">重新启动...</string>
+  <string name="onReboot">重新启动…</string>
   <string name="proxy_list">代理服务器列表</string>
-  <string name="dialog_title_downloading">正在下载...</string>
+  <string name="dialog_title_downloading">正在下载…</string>
   <string name="dialog_title_changelog">更新日志</string>
   <string name="dialog_title_readyToInstall">准备安装</string>
   <string name="dialog_title_md5mismatch">MD5 不匹配</string>
@@ -26,7 +26,7 @@
   <string name="field_filesize">文件大小</string>
   <string name="filed_filename">文件名称</string>
   <string name="field_downloaded">下载</string>
-  <string name="msg_pleaseWait">请稍候...</string>
+  <string name="msg_pleaseWait">请稍候…</string>
   <string name="msg_up_to_date">您已更新至最新版本</string>
   <string name="msg_failed_try_again">失败，请稍后再试</string>
   <string name="msg_device_not_supported">不支持的设备</string>

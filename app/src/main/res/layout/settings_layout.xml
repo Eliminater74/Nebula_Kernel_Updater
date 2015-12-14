@@ -5,7 +5,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:orientation="vertical"
         android:padding="?android:attr/listPreferredItemPaddingStart">
@@ -76,7 +76,8 @@
                 android:background="@drawable/translucent_blue_circle"
                 android:clickable="true"
                 android:gravity="center"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textIsSelectable="true" />
 
             <TextView
                 style="?android:attr/textAppearanceSmall"
@@ -92,7 +93,8 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/translucent_blue_circle"
                 android:gravity="center"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textIsSelectable="true" />
         </LinearLayout>
 
         <TextView
@@ -140,7 +142,8 @@
                     android:id="@+id/proxyHost"
                     style="?android:attr/preferenceInformationStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:textIsSelectable="true" />
             </LinearLayout>
 
             <CheckBox
@@ -253,7 +256,8 @@
                     style="?android:attr/preferenceInformationStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="36dp" />
+                    android:layout_marginEnd="36dp"
+                    android:textIsSelectable="true" />
             </LinearLayout>
 
             <CheckBox
@@ -294,7 +298,6 @@
                 style="@style/AppTheme.preferenceStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_marginBottom="5dp"
                 android:text="@string/settings_btn_receiveBeta" />
 
@@ -348,7 +351,8 @@
                 style="@style/AppTheme.preferenceInformationStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp" />
+                android:layout_marginTop="3dp"
+                android:textIsSelectable="true" />
         </LinearLayout>
 
         <View
@@ -381,7 +385,8 @@
                 style="@style/AppTheme.preferenceInformationStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp" />
+                android:layout_marginTop="3dp"
+                android:textIsSelectable="true" />
         </LinearLayout>
 
         <TextView
@@ -422,7 +427,8 @@
                 style="@style/AppTheme.preferenceInformationStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp" />
+                android:layout_marginTop="3dp"
+                android:textIsSelectable="true" />
 
         </LinearLayout>
 
@@ -456,7 +462,8 @@
                 style="@style/AppTheme.preferenceInformationStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp" />
+                android:layout_marginTop="3dp"
+                android:textIsSelectable="true" />
 
         </LinearLayout>
 

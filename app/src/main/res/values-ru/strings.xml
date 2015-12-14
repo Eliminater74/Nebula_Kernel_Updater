@@ -11,9 +11,9 @@
   <string name="minutes">Минуты</string>
   <string name="defaultt">По умолчанию</string>
   <string name="undefined">Не определено</string>
-  <string name="onReboot">Перезагрузка...</string>
+  <string name="onReboot">Перезагрузка…</string>
   <string name="proxy_list">Список прокси</string>
-  <string name="dialog_title_downloading">Загрузка...</string>
+  <string name="dialog_title_downloading">Загрузка…</string>
   <string name="dialog_title_changelog">История изменений</string>
   <string name="dialog_title_readyToInstall">Готов к установке</string>
   <string name="dialog_title_md5mismatch">Несоответствие MD5</string>

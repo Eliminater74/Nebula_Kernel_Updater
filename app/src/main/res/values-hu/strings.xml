@@ -11,9 +11,9 @@
   <string name="minutes">Perc</string>
   <string name="defaultt">Alapértelmezett</string>
   <string name="undefined">Nem meghatározott</string>
-  <string name="onReboot">Újraindítás ...</string>
+  <string name="onReboot">Újraindítás …</string>
   <string name="proxy_list">Proxy lista</string>
-  <string name="dialog_title_downloading">Letöltés folyamatban ...</string>
+  <string name="dialog_title_downloading">Letöltés folyamatban …</string>
   <string name="dialog_title_changelog">Változások</string>
   <string name="dialog_title_readyToInstall">Készen áll a telepítésre</string>
   <string name="dialog_title_md5mismatch">MD5 eltérés</string>
@@ -26,7 +26,7 @@
   <string name="field_filesize">Fájl méret</string>
   <string name="filed_filename">Fájlnév</string>
   <string name="field_downloaded">Letöltött</string>
-  <string name="msg_pleaseWait">Kérlek várj ...</string>
+  <string name="msg_pleaseWait">Kérlek várj …</string>
   <string name="msg_up_to_date">Naprakész vagy</string>
   <string name="msg_failed_try_again">Sikertelen, kérlek próbáld újra később</string>
   <string name="msg_device_not_supported">A készülék nem támogatott</string>

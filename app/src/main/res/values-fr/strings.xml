@@ -11,7 +11,7 @@
   <string name="minutes">Minutes</string>
   <string name="defaultt">Par défaut</string>
   <string name="undefined">Non défini</string>
-  <string name="onReboot">Redémarrage ...</string>
+  <string name="onReboot">Redémarrage …</string>
   <string name="proxy_list">Liste de proxy</string>
   <string name="dialog_title_downloading">Téléchargement en cours &#8230;</string>
   <string name="dialog_title_changelog">Notes de version</string>
