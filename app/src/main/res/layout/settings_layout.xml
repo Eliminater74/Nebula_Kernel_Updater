@@ -293,21 +293,21 @@
                 android:orientation="vertical"
                 android:padding="3dp">
 
-            <TextView
-                android:id="@+id/title3"
-                style="@style/AppTheme.preferenceStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:text="@string/settings_btn_receiveBeta" />
+                <TextView
+                    android:id="@+id/title3"
+                    style="@style/AppTheme.preferenceStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:text="@string/settings_btn_receiveBeta" />
 
-            <TextView
-                style="@style/AppTheme.preferenceInformationStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:layout_marginEnd="36dp"
-                android:text="@string/settings_info_experimental" />
+                <TextView
+                    style="@style/AppTheme.preferenceInformationStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginEnd="36dp"
+                    android:text="@string/settings_info_experimental" />
             </LinearLayout>
 
 
