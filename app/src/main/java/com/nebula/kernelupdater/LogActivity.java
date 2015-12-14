@@ -1,6 +1,6 @@
 package com.nebula.kernelupdater;
 
-import android.R;
+import android.R.style;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Dialog;
@@ -12,7 +12,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
@@ -22,6 +23,7 @@ import android.text.style.RelativeSizeSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewAnimationUtils;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
@@ -33,6 +35,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nebula.kernelupdater.FileSelector.FileBrowser;
+import com.nebula.kernelupdater.R.anim;
+import com.nebula.kernelupdater.R.id;
+import com.nebula.kernelupdater.R.layout;
+import com.nebula.kernelupdater.R.string;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -59,23 +65,23 @@ public class LogActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.log_layout);
+        this.setContentView(layout.log_layout);
 
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        assert this.getSupportActionBar() != null;
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        preferences = getSharedPreferences("Settings", Context.MODE_MULTI_PROCESS);
+        this.preferences = this.getSharedPreferences("Settings", Context.MODE_MULTI_PROCESS);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            getSupportActionBar().setElevation(5);
+        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP)
+            this.getSupportActionBar().setElevation(5);
 
-        scrollView = (ScrollView) findViewById(R.id.scroller);
-        text = (TextView) findViewById(R.id.text);
-        text.setTextIsSelectable(true);
+        this.scrollView = (ScrollView) this.findViewById(id.scroller);
+        this.text = (TextView) this.findViewById(id.text);
+        this.text.setTextIsSelectable(true);
 
         final File last_kmsg = new File("/proc/last_kmsg");
         if (!last_kmsg.exists() || !last_kmsg.isFile()) {
-            text.setText("last_kmsg NF");
+            this.text.setText("last_kmsg NF");
             return;
         }
 
@@ -86,28 +92,28 @@ public class LogActivity extends ActionBarActivity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                dialog = new ProgressDialog(LogActivity.this);
-                dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                dialog.setIndeterminate(true);
-                dialog.setMessage(getString(R.string.msg_pleaseWait));
-                dialog.setCancelable(false);
-                dialog.show();
+                this.dialog = new ProgressDialog(LogActivity.this);
+                this.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                this.dialog.setIndeterminate(true);
+                this.dialog.setMessage(LogActivity.this.getString(string.msg_pleaseWait));
+                this.dialog.setCancelable(false);
+                this.dialog.show();
             }
 
             @Override
             protected Void doInBackground(Void... params) {
 
                 try {
-                    builder = new StringBuilder();
+                    LogActivity.this.builder = new StringBuilder();
                     InputStreamReader ISreader = new InputStreamReader(Runtime.getRuntime().exec("su -c cat " + last_kmsg.getAbsolutePath()).getInputStream());
                     BufferedReader reader = new BufferedReader(ISreader);
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        builder.append(line).append("\n\r");
+                        LogActivity.this.builder.append(line).append("\n\r");
                     }
                     reader.close();
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(LogActivity.this.getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
                 }
 
                 return null;
@@ -116,18 +122,18 @@ public class LogActivity extends ActionBarActivity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                text.post(new Runnable() {
+                LogActivity.this.text.post(new Runnable() {
                     @Override
                     public void run() {
-                        text.setText(builder.toString());
+                        LogActivity.this.text.setText(LogActivity.this.builder.toString());
                     }
                 });
-                if (dialog != null && dialog.isShowing())
-                    text.postDelayed(new Runnable() {
+                if (this.dialog != null && this.dialog.isShowing())
+                    LogActivity.this.text.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             dialog.dismiss();
-                            scrollView.smoothScrollTo(0, text.getBottom());
+                            LogActivity.this.scrollView.smoothScrollTo(0, LogActivity.this.text.getBottom());
                         }
                     }, 500);
             }
@@ -137,42 +143,42 @@ public class LogActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        overridePendingTransition(com.nebula.kernelupdater.R.anim.slide_in_rtl, com.nebula.kernelupdater.R.anim.slide_out_rtl);
+        this.overridePendingTransition(anim.slide_in_rtl, anim.slide_out_rtl);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        this.getMenuInflater().inflate(menu.log_menu, menu);
+        getMenuInflater().inflate(R.menu.log_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_save:
-                this.save();
+            case id.action_save:
+                save();
                 break;
-            case R.id.action_search:
-                this.search();
+            case id.action_search:
+                search();
                 break;
-            case R.id.action_pageDown:
-                this.scrollView.post(new Runnable() {
+            case id.action_pageDown:
+                scrollView.post(new Runnable() {
                     @Override
                     public void run() {
-                        LogActivity.this.scrollView.smoothScrollTo(0, LogActivity.this.scrollView.getScrollY() + LogActivity.this.scrollView.getHeight());
+                        scrollView.smoothScrollTo(0, scrollView.getScrollY() + scrollView.getHeight());
                     }
                 });
                 break;
-            case R.id.action_pageUp:
-                this.scrollView.post(new Runnable() {
+            case id.action_pageUp:
+                scrollView.post(new Runnable() {
                     @Override
                     public void run() {
-                        LogActivity.this.scrollView.smoothScrollTo(0, LogActivity.this.scrollView.getScrollY() - LogActivity.this.scrollView.getHeight());
+                        scrollView.smoothScrollTo(0, scrollView.getScrollY() - scrollView.getHeight());
                     }
                 });
                 break;
             case android.R.id.home:
-                this.onBackPressed();
+                onBackPressed();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -182,44 +188,44 @@ public class LogActivity extends ActionBarActivity {
         final EditText name, location;
         Button save, browse;
 
-        final Dialog d = new Dialog(this, R.style.Theme_DeviceDefault_Light_Dialog_MinWidth);
+        final Dialog d = new Dialog(this, style.Theme_DeviceDefault_Light_Dialog_MinWidth);
         d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        d.setContentView(R.layout.log_save_layout);
+        d.setContentView(layout.log_save_layout);
         d.setCancelable(true);
         d.show();
 
-        name = (EditText) d.findViewById(R.id.name);
-        location = (EditText) d.findViewById(R.id.location);
-        save = (Button) d.findViewById(R.id.save);
-        browse = (Button) d.findViewById(R.id.browse);
+        name = (EditText) d.findViewById(id.name);
+        location = (EditText) d.findViewById(id.location);
+        save = (Button) d.findViewById(id.save);
+        browse = (Button) d.findViewById(id.browse);
 
-        name.setText(String.format(DEFAULT_NAME, new SimpleDateFormat("MM_dd__hh_mm").format(new Date())));
-        location.setText(preferences.getString("log_save_lastused_location", DEFAULT_LOC));
+        name.setText(String.format(LogActivity.DEFAULT_NAME, new SimpleDateFormat("MM_dd__hh_mm").format(new Date())));
+        location.setText(this.preferences.getString("log_save_lastused_location", LogActivity.DEFAULT_LOC));
 
-        browse.setOnClickListener(new View.OnClickListener() {
+        browse.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(LogActivity.this, FileBrowser.class);
                 i.putExtra("PICK_FOLDERS_ONLY", true);
                 i.putExtra("START", location.getText().toString());
-                startActivity(i);
+                LogActivity.this.startActivity(i);
                 BroadcastReceiver receiver = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        unregisterReceiver(this);
+                        LogActivity.this.unregisterReceiver(this);
                         try {
                             if (intent.getAction().equals(FileBrowser.ACTION_DIRECTORY_SELECTED))
                                 location.setText(intent.getStringExtra("folder"));
                         } catch (Exception e) {
-                            Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(LogActivity.this.getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
                         }
                     }
                 };
-                registerReceiver(receiver, new IntentFilter(FileBrowser.ACTION_DIRECTORY_SELECTED));
+                LogActivity.this.registerReceiver(receiver, new IntentFilter(FileBrowser.ACTION_DIRECTORY_SELECTED));
             }
         });
 
-        save.setOnClickListener(new View.OnClickListener() {
+        save.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
@@ -234,17 +240,17 @@ public class LogActivity extends ActionBarActivity {
                     }
 
                     PrintWriter writer = new PrintWriter(new FileWriter(out));
-                    writer.print(builder);
+                    writer.print(LogActivity.this.builder);
                     writer.flush();
                     writer.close();
 
                     if (d.isShowing())
                         d.dismiss();
 
-                    preferences.edit().putString("log_save_lastused_location", location.getText().toString()).apply();
-                    Toast.makeText(getApplicationContext(), R.string.btn_ok, Toast.LENGTH_SHORT).show();
+                    LogActivity.this.preferences.edit().putString("log_save_lastused_location", location.getText().toString()).apply();
+                    Toast.makeText(LogActivity.this.getApplicationContext(), string.btn_ok, Toast.LENGTH_SHORT).show();
                 } catch (IOException e) {
-                    Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(LogActivity.this.getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -253,8 +259,8 @@ public class LogActivity extends ActionBarActivity {
 
     private void search() {
 
-        final RelativeLayout topSearch = (RelativeLayout) findViewById(R.id.topSearch);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        final RelativeLayout topSearch = (RelativeLayout) this.findViewById(id.topSearch);
+        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
             topSearch.setElevation(5);
 
             int cx = topSearch.getRight();
@@ -266,7 +272,7 @@ public class LogActivity extends ActionBarActivity {
                 animator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationStart(Animator animation) {
-                        this.onAnimationEnd(animation);
+                        onAnimationEnd(animation);
                         topSearch.setVisibility(View.VISIBLE);
                     }
                 });
@@ -285,15 +291,15 @@ public class LogActivity extends ActionBarActivity {
         } else {
             topSearch.setVisibility(topSearch.getVisibility() == View.INVISIBLE ? View.VISIBLE : View.INVISIBLE);
         }
-        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(id.btn).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 topSearch.setVisibility(View.INVISIBLE);
-                InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                InputMethodManager manager = (InputMethodManager) LogActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 manager.hideSoftInputFromWindow(topSearch.getWindowToken(), 0);
 
-                String toFind = ((EditText) findViewById(R.id.searchBox)).getText().toString().trim();
+                String toFind = ((EditText) LogActivity.this.findViewById(id.searchBox)).getText().toString().trim();
 
                 if (toFind.length() > 0) {
                     new AsyncTask<Void, Void, Boolean>() {
@@ -303,20 +309,20 @@ public class LogActivity extends ActionBarActivity {
                         @Override
                         protected void onPreExecute() {
                             super.onPreExecute();
-                            dialog = new ProgressDialog(LogActivity.this);
-                            dialog.setCancelable(false);
-                            dialog.setIndeterminate(true);
-                            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                            dialog.setMessage(getString(R.string.msg_pleaseWait));
-                            dialog.show();
+                            this.dialog = new ProgressDialog(LogActivity.this);
+                            this.dialog.setCancelable(false);
+                            this.dialog.setIndeterminate(true);
+                            this.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                            this.dialog.setMessage(LogActivity.this.getString(string.msg_pleaseWait));
+                            this.dialog.show();
                         }
 
                         @Override
                         protected Boolean doInBackground(Void... params) {
-                            sString = new SpannableString(builder.toString());
-                            String tmp = builder.toString();
+                            this.sString = new SpannableString(LogActivity.this.builder.toString());
+                            String tmp = LogActivity.this.builder.toString();
                             ArrayList<Integer> indexes = new ArrayList<>();
-                            String toFind = ((EditText) findViewById(R.id.searchBox)).getText().toString().trim();
+                            String toFind = ((EditText) LogActivity.this.findViewById(id.searchBox)).getText().toString().trim();
                             String toRep = "";
                             for (int i = 0; i < toFind.length(); i++) {
                                 toRep += " ";
@@ -337,8 +343,8 @@ public class LogActivity extends ActionBarActivity {
                             for (int i = 0; i < indexes.size(); i++) {
                                 int start = indexes.get(i);
                                 int end = start + toFind.length();
-                                sString.setSpan(new BackgroundColorSpan(Color.YELLOW), start, end, 0);
-                                sString.setSpan(new RelativeSizeSpan(2f), start, end, 0);
+                                this.sString.setSpan(new BackgroundColorSpan(Color.YELLOW), start, end, 0);
+                                this.sString.setSpan(new RelativeSizeSpan(2f), start, end, 0);
                             }
                             return indexes.size() > 0;
                         }
@@ -346,24 +352,24 @@ public class LogActivity extends ActionBarActivity {
                         @Override
                         protected void onPostExecute(Boolean bool) {
                             super.onPostExecute(bool);
-                            if (dialog != null && dialog.isShowing()) {
-                                dialog.hide();
+                            if (this.dialog != null && this.dialog.isShowing()) {
+                                this.dialog.hide();
                             }
                             if (bool) {
-                                text.postDelayed(new Runnable() {
+                                LogActivity.this.text.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        text.setText(sString);
-                                        Toast.makeText(getApplicationContext(), R.string.msg_textHighlighted, Toast.LENGTH_LONG).show();
+                                        LogActivity.this.text.setText(sString);
+                                        Toast.makeText(LogActivity.this.getApplicationContext(), string.msg_textHighlighted, Toast.LENGTH_LONG).show();
                                     }
                                 }, 100);
                             } else {
-                                Toast.makeText(getApplicationContext(), R.string.msg_textNotFound, Toast.LENGTH_LONG).show();
+                                Toast.makeText(LogActivity.this.getApplicationContext(), string.msg_textNotFound, Toast.LENGTH_LONG).show();
                             }
                         }
                     }.execute();
                 } else {
-                    text.setText(builder.toString());
+                    LogActivity.this.text.setText(LogActivity.this.builder.toString());
                 }
             }
         });
