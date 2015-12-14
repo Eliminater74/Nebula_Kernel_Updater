@@ -179,10 +179,10 @@ public class BackgroundAutoCheckService extends Service {
             if (this.preferences.getBoolean(Keys.KEY_SETTINGS_USEPROXY, false)) {
                 String proxyHost = this.preferences.getString(Keys.KEY_SETTINGS_PROXYHOST, Keys.DEFAULT_PROXY);
                 System.setProperty("http.proxySet", "true");
-                System.setProperty("http.proxyHost", proxyHost.substring(0, proxyHost.indexOf(":")));
-                System.setProperty("http.proxyPort", proxyHost.substring(proxyHost.indexOf(":") + 1));
-                System.setProperty("https.proxyHost", proxyHost.substring(0, proxyHost.indexOf(":")));
-                System.setProperty("https.proxyPort", proxyHost.substring(proxyHost.indexOf(":") + 1));
+                System.setProperty("http.proxyHost", proxyHost.substring(0, proxyHost.indexOf(':')));
+                System.setProperty("http.proxyPort", proxyHost.substring(proxyHost.indexOf(':') + 1));
+                System.setProperty("https.proxyHost", proxyHost.substring(0, proxyHost.indexOf(':')));
+                System.setProperty("https.proxyPort", proxyHost.substring(proxyHost.indexOf(':') + 1));
             } else {
                 System.setProperty("http.proxySet", "true");
             }
@@ -206,7 +206,7 @@ public class BackgroundAutoCheckService extends Service {
                 String line = s.nextLine();
                 if (line.equalsIgnoreCase(String.format("</%s>", Build.DEVICE)))
                     break;
-                this.DEVICE_PART += line + "\n";
+                this.DEVICE_PART += line + '\n';
             }
             return true;
         } else {
@@ -228,5 +228,14 @@ public class BackgroundAutoCheckService extends Service {
             BackgroundAutoCheckService.manager.cancel(BackgroundAutoCheckService.pendingIntent);
         if (BackgroundAutoCheckService.receiver != null)
             this.unregisterReceiver(BackgroundAutoCheckService.receiver);
+    }
+
+    @Override
+    public String toString() {
+        return "BackgroundAutoCheckService{" +
+                "preferences=" + preferences +
+                ", DEVICE_PART='" + DEVICE_PART + '\'' +
+                ", run=" + run +
+                '}';
     }
 }

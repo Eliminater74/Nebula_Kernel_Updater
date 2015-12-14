@@ -92,7 +92,7 @@ public class Tools {
 
     public static String getFileExtension(File f) {
         try {
-            return f.getName().substring(f.getName().lastIndexOf("."));
+            return f.getName().substring(f.getName().lastIndexOf('.'));
         } catch (StringIndexOutOfBoundsException e) {
             return "";
         }
@@ -142,7 +142,7 @@ public class Tools {
         return md5hash;
     }
 
-    public static String getFormattedKernelVersion() {
+    public static CharSequence getFormattedKernelVersion() {
         String procVersionStr;
 
         try {
@@ -164,9 +164,8 @@ public class Tools {
             } else if (m.groupCount() < 4) {
                 return "Unavailable";
             } else {
-                return new StringBuilder(Tools.INSTALLED_KERNEL_VERSION = m.group(1)).append("\n").append(
-                        m.group(2)).append(" ").append(m.group(3)).append("\n")
-                        .append(m.group(4)).toString();
+                return (Tools.INSTALLED_KERNEL_VERSION = m.group(1)) + '\n' + m.group(2) + ' ' + m.group(3) + '\n' +
+                        m.group(4);
             }
         } catch (IOException e) {
             return "Unavailable";
@@ -450,7 +449,7 @@ public class Tools {
                                         final NotificationManager manager1 = (NotificationManager) Tools.this.C.getSystemService(Context.NOTIFICATION_SERVICE);
 
                                         String bigText = Tools.this.C.getString(string.prompt_install2, Tools.this.C.getString(string.btn_install), "");
-                                        bigText = bigText.split("\n")[0] + "\n" + bigText.split("\n")[1];
+                                        bigText = bigText.split("\n")[0] + '\n' + bigText.split("\n")[1];
 
                                         Notification notification = new Builder(Tools.this.C)
                                                 .setContentTitle(Tools.this.C.getString(string.dialog_title_readyToInstall))
@@ -538,7 +537,7 @@ public class Tools {
                                     if (match) {
 
                                         String bigText = Tools.this.C.getString(string.prompt_install1, Tools.this.C.getString(string.btn_install), "");
-                                        bigText = bigText.split("\n")[0] + "\n" + bigText.split("\n")[1];
+                                        bigText = bigText.split("\n")[0] + '\n' + bigText.split("\n")[1];
 
                                         Notification notification = new Builder(Tools.this.C.getApplicationContext())
                                                 .setSmallIcon(drawable.ic_notification)
@@ -638,4 +637,14 @@ public class Tools {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Tools{" +
+                "cancelDownload=" + cancelDownload +
+                ", downloadSize=" + downloadSize +
+                ", downloadedSize=" + downloadedSize +
+                ", lastDownloadedFile=" + lastDownloadedFile +
+                ", C=" + C +
+                '}';
+    }
 }

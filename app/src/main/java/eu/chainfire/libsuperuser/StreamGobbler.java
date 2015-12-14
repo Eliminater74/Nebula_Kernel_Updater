@@ -100,4 +100,14 @@ public class StreamGobbler extends Thread {
          */
         void onLine(String line);
     }
+
+    @Override
+    public String toString() {
+        return "StreamGobbler{" +
+                "shell='" + shell + '\'' +
+                ", reader=" + reader +
+                ", writer=" + writer +
+                ", listener=" + listener +
+                '}';
+    }
 }

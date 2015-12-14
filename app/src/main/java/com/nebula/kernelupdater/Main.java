@@ -30,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.view.Window;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -186,8 +187,8 @@ public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefr
 
                         ((TextView) v.findViewById(R.id.text)).setText(ver);
 
-                        ((Button) v.findViewById(R.id.btn_changelog)).setTypeface(Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf"), Typeface.BOLD);
-                        ((Button) v.findViewById(R.id.btn_getLatestVersion)).setTypeface(Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf"), Typeface.BOLD);
+                        ((TextView) v.findViewById(R.id.btn_changelog)).setTypeface(Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf"), Typeface.BOLD);
+                        ((TextView) v.findViewById(R.id.btn_getLatestVersion)).setTypeface(Typeface.createFromAsset(getAssets(), "Roboto-Light.ttf"), Typeface.BOLD);
 
                         v.findViewById(R.id.btn_changelog).setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -200,7 +201,7 @@ public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefr
 
                                 View view1 = LayoutInflater.from(Main.this).inflate(R.layout.blank_view, null);
                                 view1.setPadding(15, 15, 15, 15);
-                                ((LinearLayout) view1).addView(textView, params);
+                                ((ViewManager) view1).addView(textView, params);
                                 new AlertDialog.Builder(Main.this)
                                         .setView(view1)
                                         .setTitle(R.string.dialog_title_changelog)
@@ -407,10 +408,10 @@ public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefr
                 if (preferences.getBoolean(Keys.KEY_SETTINGS_USEPROXY, false)) {
                     final String proxyHost = preferences.getString(Keys.KEY_SETTINGS_PROXYHOST, Keys.DEFAULT_PROXY);
                     System.setProperty("http.proxySet", "true");
-                    System.setProperty("http.proxyHost", proxyHost.substring(0, proxyHost.indexOf(":")));
-                    System.setProperty("http.proxyPort", proxyHost.substring(proxyHost.indexOf(":") + 1));
-                    System.setProperty("https.proxyHost", proxyHost.substring(0, proxyHost.indexOf(":")));
-                    System.setProperty("https.proxyPort", proxyHost.substring(proxyHost.indexOf(":") + 1));
+                    System.setProperty("http.proxyHost", proxyHost.substring(0, proxyHost.indexOf(':')));
+                    System.setProperty("http.proxyPort", proxyHost.substring(proxyHost.indexOf(':') + 1));
+                    System.setProperty("https.proxyHost", proxyHost.substring(0, proxyHost.indexOf(':')));
+                    System.setProperty("https.proxyPort", proxyHost.substring(proxyHost.indexOf(':') + 1));
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -458,14 +459,14 @@ public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefr
                         break;
 
                     if (line.equalsIgnoreCase("<changelog>")) {
-                        DEVICE_PART += line + "\n";
+                        DEVICE_PART += line + '\n';
                         while (s.hasNextLine() && !(line = s.nextLine()).equalsIgnoreCase("</changelog>")) {
-                            CHANGELOG += line + "\n";
-                            DEVICE_PART += line + "\n";
+                            CHANGELOG += line + '\n';
+                            DEVICE_PART += line + '\n';
                         }
                     }
 
-                    DEVICE_PART += line + "\n";
+                    DEVICE_PART += line + '\n';
                 }
                 return true;
             } else {
@@ -483,7 +484,7 @@ public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefr
         displayOnScreenMessage(main, getString(msgId));
     }
 
-    private void displayOnScreenMessage(LinearLayout main, String msgStr) {
+    private void displayOnScreenMessage(LinearLayout main, CharSequence msgStr) {
         TextView textView = new TextView(Main.this);
         textView.setText(msgStr);
         textView.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -618,7 +619,7 @@ public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefr
         TextView text3 = new TextView(this);
         text3.setTextAppearance(this, android.R.style.TextAppearance_Small);
         try {
-            text3.setText("v" + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+            text3.setText('v' + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
         } catch (PackageManager.NameNotFoundException ignored) {
         }
         params.setMargins(0, 40, 0, 0);
@@ -854,5 +855,19 @@ public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefr
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
+    }
+
+    @Override
+    public String toString() {
+        return "Main{" +
+                "DEVICE='" + DEVICE + '\'' +
+                ", DEVICE_PART='" + DEVICE_PART + '\'' +
+                ", CHANGELOG='" + CHANGELOG + '\'' +
+                ", tools=" + tools +
+                ", refreshLayout=" + refreshLayout +
+                ", main=" + main +
+                ", mHandler=" + mHandler +
+                ", client=" + client +
+                '}';
     }
 }

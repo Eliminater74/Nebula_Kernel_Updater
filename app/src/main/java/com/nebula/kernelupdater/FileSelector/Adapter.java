@@ -41,4 +41,12 @@ public class Adapter extends ArrayAdapter {
 
         return convertView;
     }
+
+    @Override
+    public String toString() {
+        return "Adapter{" +
+                "files=" + files +
+                ", context=" + context +
+                '}';
+    }
 }

@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -126,14 +127,14 @@ public class Shell {
                 newEnvironment.putAll(System.getenv());
                 int split;
                 for (String entry : environment) {
-                    if ((split = entry.indexOf("=")) >= 0) {
+                    if ((split = entry.indexOf('=')) >= 0) {
                         newEnvironment.put(entry.substring(0, split), entry.substring(split + 1));
                     }
                 }
                 int i = 0;
                 environment = new String[newEnvironment.size()];
                 for (Map.Entry<String, String> entry : newEnvironment.entrySet()) {
-                    environment[i] = entry.getKey() + "=" + entry.getValue();
+                    environment[i] = entry.getKey() + '=' + entry.getValue();
                     i++;
                 }
             }
@@ -142,9 +143,9 @@ public class Shell {
             // gobblers
             Process process = Runtime.getRuntime().exec(shell, environment);
             DataOutputStream STDIN = new DataOutputStream(process.getOutputStream());
-            StreamGobbler STDOUT = new StreamGobbler(shellUpper + "-", process.getInputStream(),
+            StreamGobbler STDOUT = new StreamGobbler(shellUpper + '-', process.getInputStream(),
                     res);
-            StreamGobbler STDERR = new StreamGobbler(shellUpper + "*", process.getErrorStream(),
+            StreamGobbler STDERR = new StreamGobbler(shellUpper + '*', process.getErrorStream(),
                     wantSTDERR ? res : null);
 
             // start gobbling and write our commands to the shell
@@ -152,7 +153,7 @@ public class Shell {
             STDERR.start();
             for (String write : commands) {
                 Debug.logCommand(String.format("[%s+] %s", shellUpper, write));
-                STDIN.write((write + "\n").getBytes("UTF-8"));
+                STDIN.write((write + '\n').getBytes("UTF-8"));
                 STDIN.flush();
             }
             try {
@@ -205,7 +206,7 @@ public class Shell {
      *                     root
      * @return true on success, false on error
      */
-    protected static boolean parseAvailableResult(List<String> ret, boolean checkForRoot) {
+    protected static boolean parseAvailableResult(Iterable<String> ret, boolean checkForRoot) {
         if (ret == null)
             return false;
 
@@ -608,6 +609,17 @@ public class Shell {
             this.onCommandLineListener = onCommandLineListener;
             this.marker = UUID.randomUUID() + String.format("-%08x", ++commandCounter);
         }
+
+        @Override
+        public String toString() {
+            return "Command{" +
+                    "commands=" + Arrays.toString(commands) +
+                    ", code=" + code +
+                    ", onCommandResultListener=" + onCommandResultListener +
+                    ", onCommandLineListener=" + onCommandLineListener +
+                    ", marker='" + marker + '\'' +
+                    '}';
+        }
     }
 
     /**
@@ -905,6 +917,21 @@ public class Shell {
          */
         public Shell.Interactive open(OnCommandResultListener onCommandResultListener) {
             return new Shell.Interactive(this, onCommandResultListener);
+        }
+
+        @Override
+        public String toString() {
+            return "Builder{" +
+                    "commands=" + commands +
+                    ", environment=" + environment +
+                    ", handler=" + handler +
+                    ", autoHandler=" + autoHandler +
+                    ", shell='" + shell + '\'' +
+                    ", wantSTDERR=" + wantSTDERR +
+                    ", onSTDOUTLineListener=" + onSTDOUTLineListener +
+                    ", onSTDERRLineListener=" + onSTDERRLineListener +
+                    ", watchdogTimeout=" + watchdogTimeout +
+                    '}';
         }
     }
 
@@ -1327,7 +1354,7 @@ public class Shell {
                         for (String write : command.commands) {
                             Debug.logCommand(String.format("[%s+] %s",
                                     this.shell.toUpperCase(Locale.ENGLISH), write));
-                            this.STDIN.write((write + "\n").getBytes("UTF-8"));
+                            this.STDIN.write((write + '\n').getBytes("UTF-8"));
                         }
                         this.STDIN.write(("echo " + command.marker + " $?\n").getBytes("UTF-8"));
                         this.STDIN.write(("echo " + command.marker + " >&2\n").getBytes("UTF-8"));
@@ -1490,14 +1517,14 @@ public class Shell {
                         int i = 0;
                         String[] env = new String[newEnvironment.size()];
                         for (Map.Entry<String, String> entry : newEnvironment.entrySet()) {
-                            env[i] = entry.getKey() + "=" + entry.getValue();
+                            env[i] = entry.getKey() + '=' + entry.getValue();
                             i++;
                         }
                         this.process = Runtime.getRuntime().exec(this.shell, env);
                     }
 
                     this.STDIN = new DataOutputStream(this.process.getOutputStream());
-                    this.STDOUT = new StreamGobbler(this.shell.toUpperCase(Locale.ENGLISH) + "-",
+                    this.STDOUT = new StreamGobbler(this.shell.toUpperCase(Locale.ENGLISH) + '-',
                             this.process.getInputStream(), new OnLineListener() {
                         @Override
                         public void onLine(String line) {
@@ -1521,7 +1548,7 @@ public class Shell {
                             }
                         }
                     });
-                    this.STDERR = new StreamGobbler(this.shell.toUpperCase(Locale.ENGLISH) + "*",
+                    this.STDERR = new StreamGobbler(this.shell.toUpperCase(Locale.ENGLISH) + '*',
                             this.process.getErrorStream(), new OnLineListener() {
                         @Override
                         public void onLine(String line) {
@@ -1753,6 +1780,38 @@ public class Shell {
          */
         public boolean hasHandler() {
             return handler != null;
+        }
+
+        @Override
+        public String toString() {
+            return "Interactive{" +
+                    "handler=" + handler +
+                    ", autoHandler=" + autoHandler +
+                    ", shell='" + shell + '\'' +
+                    ", wantSTDERR=" + wantSTDERR +
+                    ", commands=" + commands +
+                    ", environment=" + environment +
+                    ", onSTDOUTLineListener=" + onSTDOUTLineListener +
+                    ", onSTDERRLineListener=" + onSTDERRLineListener +
+                    ", idleSync=" + idleSync +
+                    ", callbackSync=" + callbackSync +
+                    ", watchdogTimeout=" + watchdogTimeout +
+                    ", process=" + process +
+                    ", STDIN=" + STDIN +
+                    ", STDOUT=" + STDOUT +
+                    ", STDERR=" + STDERR +
+                    ", watchdog=" + watchdog +
+                    ", running=" + running +
+                    ", idle=" + idle +
+                    ", closed=" + closed +
+                    ", callbacks=" + callbacks +
+                    ", watchdogCount=" + watchdogCount +
+                    ", lastExitCode=" + lastExitCode +
+                    ", lastMarkerSTDOUT='" + lastMarkerSTDOUT + '\'' +
+                    ", lastMarkerSTDERR='" + lastMarkerSTDERR + '\'' +
+                    ", command=" + command +
+                    ", buffer=" + buffer +
+                    '}';
         }
     }
 }

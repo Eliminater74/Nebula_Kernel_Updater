@@ -78,7 +78,7 @@ public class Debug {
             if (logListener != null) {
                 logListener.onLog(type, typeIndicator, message);
             } else {
-                Log.d(TAG, "[" + TAG + "][" + typeIndicator + "]" + (!message.startsWith("[") && !message.startsWith(" ") ? " " : "") + message);
+                Log.d(TAG, '[' + TAG + "][" + typeIndicator + ']' + (!message.startsWith("[") && !message.startsWith(" ") ? " " : "") + message);
             }
         }
     }
@@ -158,7 +158,7 @@ public class Debug {
      * @param type LOG_* constants
      */
     public static boolean getLogTypeEnabledEffective(int type) {
-        return getDebug() && getLogTypeEnabled(type);
+        return debug && getLogTypeEnabled(type);
     }
 
     /**
@@ -217,7 +217,7 @@ public class Debug {
      * @return True if enabled
      */
     public static boolean getSanityChecksEnabledEffective() {
-        return getDebug() && getSanityChecksEnabled();
+        return debug && sanityChecks;
     }
 
     /**

@@ -24,8 +24,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewManager;
 import android.view.Window;
 import android.widget.CheckBox;
+import android.widget.Checkable;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -69,7 +71,7 @@ public class Settings extends AppCompatActivity {
                     String hours = AC_H.getText().toString(), minutes = AC_M.getText().toString();
                     if ((Tools.isAllDigits(hours) && Integer.parseInt(hours) == 0) && (Tools.isAllDigits(minutes) && Integer.parseInt(minutes) == 0))
                         return;
-                    Main.preferences.edit().putString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, (hours.length() > 0 ? hours : "0") + ":" + (minutes.length() > 0 ? minutes : "0")).apply();
+                    Main.preferences.edit().putString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, (hours.length() > 0 ? hours : "0") + ':' + (minutes.length() > 0 ? minutes : "0")).apply();
                 }
             });
         }
@@ -103,7 +105,7 @@ public class Settings extends AppCompatActivity {
                 getSupportActionBar().setElevation(5);
         }
 
-        ((CheckBox) findViewById(R.id.checkbox_useProxy)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) findViewById(R.id.checkbox_useProxy)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_USEPROXY, b).apply();
@@ -125,8 +127,8 @@ public class Settings extends AppCompatActivity {
 
                 final EditText IP = (EditText) d.findViewById(R.id.ip), PORT = (EditText) d.findViewById(R.id.port);
                 String currentHost = Main.preferences.getString(Keys.KEY_SETTINGS_PROXYHOST, Keys.DEFAULT_PROXY);
-                IP.setText(currentHost.substring(0, currentHost.indexOf(":")));
-                PORT.setText(currentHost.substring(currentHost.indexOf(":") + 1));
+                IP.setText(currentHost.substring(0, currentHost.indexOf(':')));
+                PORT.setText(currentHost.substring(currentHost.indexOf(':') + 1));
 
                 SpannableString ss0 = new SpannableString(getString(R.string.proxy_list));
                 ss0.setSpan(new UnderlineSpan(), 0, ss0.length(), 0);
@@ -140,8 +142,8 @@ public class Settings extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         String host = Keys.DEFAULT_PROXY;
-                        IP.setText(host.substring(0, host.indexOf(":")));
-                        PORT.setText(host.substring(host.indexOf(":") + 1));
+                        IP.setText(host.substring(0, host.indexOf(':')));
+                        PORT.setText(host.substring(host.indexOf(':') + 1));
                     }
                 });
 
@@ -158,7 +160,7 @@ public class Settings extends AppCompatActivity {
                     public void onDismiss(DialogInterface dialog) {
                         String ip = IP.getText().toString(), port = PORT.getText().toString();
                         if (Tools.validateIP(ip) && port.length() > 0) {
-                            Main.preferences.edit().putString(Keys.KEY_SETTINGS_PROXYHOST, ip + ":" + port).apply();
+                            Main.preferences.edit().putString(Keys.KEY_SETTINGS_PROXYHOST, ip + ':' + port).apply();
                             Toast.makeText(getApplicationContext(), R.string.msg_restartApplication, Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(getApplicationContext(), R.string.msg_invalidProxy, Toast.LENGTH_SHORT).show();
@@ -168,7 +170,7 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        ((CheckBox) findViewById(R.id.checkbox_useAndDM)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) findViewById(R.id.checkbox_useAndDM)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_USEANDM, b).apply();
@@ -222,7 +224,7 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        ((CheckBox) findViewById(R.id.checkbox_useStaticFilename)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) findViewById(R.id.checkbox_useStaticFilename)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
@@ -260,7 +262,7 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        ((CheckBox) findViewById(R.id.checkbox_receiveBeta)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) findViewById(R.id.checkbox_receiveBeta)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_LOOKFORBETA, b).apply();
@@ -440,7 +442,7 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        ((SwitchCompat) findViewById(R.id.switch_bkg_check)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) findViewById(R.id.switch_bkg_check)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_AUTOCHECK_ENABLED, b).apply();
@@ -459,7 +461,7 @@ public class Settings extends AppCompatActivity {
                 picker.setMaxValue(view == AC_H ? 168 : 59);
                 picker.setMinValue(0);
                 picker.setValue(Integer.parseInt(Main.preferences.getString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, "12:00").split(":")[(view == AC_H ? 0 : 1)]));
-                ((LinearLayout) child).addView(picker, params);
+                ((ViewManager) child).addView(picker, params);
                 ((LinearLayout) child).setGravity(Gravity.CENTER_HORIZONTAL);
                 child.setPadding(30, 0, 30, 0);
                 AlertDialog.Builder builder = new AlertDialog.Builder(Settings.this);
@@ -468,7 +470,7 @@ public class Settings extends AppCompatActivity {
                 builder.setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        updateTextView((TextView) view, picker.getValue() + "");
+                        updateTextView((TextView) view, String.valueOf(picker.getValue()));
                     }
                 });
                 builder.setNegativeButton(R.string.btn_cancel, null);
@@ -487,7 +489,7 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        ((SwitchCompat) findViewById(R.id.switch_bkg_check)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) findViewById(R.id.switch_bkg_check)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_AUTOCHECK_ENABLED, b).apply();
@@ -511,18 +513,18 @@ public class Settings extends AppCompatActivity {
 
     }
 
-    void updateTextView(TextView v, String s) {
+    void updateTextView(TextView v, CharSequence s) {
         v.setText(s);
     }
 
     private void updateScreen() {
         screenUpdating = true;
-        ((SwitchCompat) findViewById(R.id.switch_bkg_check)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_AUTOCHECK_ENABLED, true));
+        ((Checkable) findViewById(R.id.switch_bkg_check)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_AUTOCHECK_ENABLED, true));
         ((TextView) findViewById(R.id.textView_dlLoc)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_DOWNLOADLOCATION, ""));
         ((TextView) findViewById(R.id.proxyHost)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_PROXYHOST, Keys.DEFAULT_PROXY));
-        ((CheckBox) findViewById(R.id.checkbox_useProxy)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USEPROXY, false));
-        ((CheckBox) findViewById(R.id.checkbox_useAndDM)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USEANDM, false));
-        ((CheckBox) findViewById(R.id.checkbox_receiveBeta)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_LOOKFORBETA, false));
+        ((Checkable) findViewById(R.id.checkbox_useProxy)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USEPROXY, false));
+        ((Checkable) findViewById(R.id.checkbox_useAndDM)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USEANDM, false));
+        ((Checkable) findViewById(R.id.checkbox_receiveBeta)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_LOOKFORBETA, false));
 
         AC_H.setText(Main.preferences.getString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, "12:00").split(":")[0]);
         AC_M.setText(Main.preferences.getString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, "12:00").split(":")[1]);
@@ -532,7 +534,7 @@ public class Settings extends AppCompatActivity {
         else
             ((TextView) findViewById(R.id.textView_upSrc)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_SOURCE, Keys.DEFAULT_SOURCE));
 
-        ((CheckBox) findViewById(R.id.checkbox_useStaticFilename)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USESTATICFILENAME, false));
+        ((Checkable) findViewById(R.id.checkbox_useStaticFilename)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USESTATICFILENAME, false));
 
         ((TextView) findViewById(R.id.textView_staticFilename)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, getString(R.string.undefined)));
 
@@ -542,7 +544,7 @@ public class Settings extends AppCompatActivity {
         screenUpdating = false;
     }
 
-    private Object[] showDialog(String msg, String hint, String editTextContent) {
+    private Object[] showDialog(CharSequence msg, CharSequence hint, CharSequence editTextContent) {
         View child = ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.blank_view, null);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         child.setLayoutParams(params);
@@ -556,8 +558,8 @@ public class Settings extends AppCompatActivity {
         }
         TextView textView = new TextView(Settings.this);
         textView.setText(msg);
-        ((LinearLayout) child).addView(textView, params);
-        ((LinearLayout) child).addView(editText, params);
+        ((ViewManager) child).addView(textView, params);
+        ((ViewManager) child).addView(editText, params);
         Dialog dialog = new Dialog(activity, android.R.style.Theme_DeviceDefault_Dialog_NoActionBar_MinWidth);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(child);
@@ -595,7 +597,8 @@ public class Settings extends AppCompatActivity {
                 if (line.equalsIgnoreCase(String.format("</%s>", Build.DEVICE)))
                     break;
 
-                DEVICE_PART += line + "\n";
+                //noinspection SingleCharacterStringConcatenation
+                DEVICE_PART += line + '\n';
             }
             return true;
         } else {
@@ -616,5 +619,18 @@ public class Settings extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         overridePendingTransition(R.anim.slide_in_ltr, R.anim.slide_out_ltr);
+    }
+
+    @Override
+    public String toString() {
+        return "Settings{" +
+                "activity=" + activity +
+                ", DEVICE_PART='" + DEVICE_PART + '\'' +
+                ", screenUpdating=" + screenUpdating +
+                ", AC_H=" + AC_H +
+                ", AC_M=" + AC_M +
+                ", intervalChanger=" + intervalChanger +
+                ", prefListener=" + prefListener +
+                '}';
     }
 }

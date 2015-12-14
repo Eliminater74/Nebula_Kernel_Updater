@@ -74,4 +74,10 @@ public class KernelManager {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return "KernelManager{" +
+                "preferences=" + preferences +
+                '}';
+    }
 }

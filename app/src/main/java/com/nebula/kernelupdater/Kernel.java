@@ -1,5 +1,6 @@
 package com.nebula.kernelupdater;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class Kernel implements Comparable<Kernel> {
     private boolean ISTESTBUILD;
 
     public Kernel(String parameters) {
-        this.PARAMS = new String(parameters);
+        this.PARAMS = parameters;
 
         if (this.PARAMS == null)
             return;
@@ -56,7 +57,7 @@ public class Kernel implements Comparable<Kernel> {
         }
     }
 
-    public Set<String> getBASE() {
+    public Collection<String> getBASE() {
         String[] all = this.BASE.split(",");
         Set<String> set = new HashSet(all.length);
         for (String s : all)
@@ -64,7 +65,7 @@ public class Kernel implements Comparable<Kernel> {
         return set;
     }
 
-    public Set<String> getAPI() {
+    public Collection<String> getAPI() {
         String[] all = this.API.split(",");
         Set<String> set = new HashSet(all.length);
         for (String s : all)
@@ -94,7 +95,7 @@ public class Kernel implements Comparable<Kernel> {
 
     @Override
     public int compareTo(Kernel another) {
-        return this.getMD5().compareTo(another.getMD5());
+        return this.MD5.compareTo(another.MD5);
     }
 
     @Override

@@ -32,7 +32,7 @@ public class Card {
         }
 
         if (addition != null) {
-            ((RelativeLayout) PARENT.findViewById(R.id.additional)).addView(addition);
+            ((ViewGroup) PARENT.findViewById(R.id.additional)).addView(addition);
         }
     }
 
@@ -47,4 +47,12 @@ public class Card {
         return PARENT;
     }
 
+    @Override
+    public String toString() {
+        return "Card{" +
+                "CONTEXT=" + CONTEXT +
+                ", TITLE='" + TITLE + '\'' +
+                ", PARENT=" + PARENT +
+                '}';
+    }
 }

@@ -30,7 +30,7 @@ public class CustomProgressDialog extends Dialog {
         progressBar.setMax(MAX);
     }
 
-    public void update(String filename, String downloaded, String filesize) {
+    public void update(CharSequence filename, String downloaded, String filesize) {
         FILENAME.setText(filename);
         FILESIZE.setText(filesize + UNIT);
         DOWNLOADED.setText(downloaded + UNIT);
@@ -49,5 +49,17 @@ public class CustomProgressDialog extends Dialog {
 
     public void setIndeterminate(boolean b) {
         progressBar.setIndeterminate(b);
+    }
+
+    @Override
+    public String toString() {
+        return "CustomProgressDialog{" +
+                "progressBar=" + progressBar +
+                ", MAX=" + MAX +
+                ", FILENAME=" + FILENAME +
+                ", FILESIZE=" + FILESIZE +
+                ", DOWNLOADED=" + DOWNLOADED +
+                ", PERCENTAGE=" + PERCENTAGE +
+                '}';
     }
 }

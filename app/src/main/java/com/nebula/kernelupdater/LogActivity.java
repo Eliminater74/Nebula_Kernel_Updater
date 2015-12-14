@@ -299,7 +299,7 @@ public class LogActivity extends ActionBarActivity {
                 InputMethodManager manager = (InputMethodManager) LogActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
                 manager.hideSoftInputFromWindow(topSearch.getWindowToken(), 0);
 
-                String toFind = ((EditText) LogActivity.this.findViewById(id.searchBox)).getText().toString().trim();
+                String toFind = ((TextView) LogActivity.this.findViewById(id.searchBox)).getText().toString().trim();
 
                 if (toFind.length() > 0) {
                     new AsyncTask<Void, Void, Boolean>() {
@@ -322,7 +322,7 @@ public class LogActivity extends ActionBarActivity {
                             this.sString = new SpannableString(LogActivity.this.builder.toString());
                             String tmp = LogActivity.this.builder.toString();
                             ArrayList<Integer> indexes = new ArrayList<>();
-                            String toFind = ((EditText) LogActivity.this.findViewById(id.searchBox)).getText().toString().trim();
+                            String toFind = ((TextView) LogActivity.this.findViewById(id.searchBox)).getText().toString().trim();
                             String toRep = "";
                             for (int i = 0; i < toFind.length(); i++) {
                                 toRep += " ";
@@ -375,4 +375,13 @@ public class LogActivity extends ActionBarActivity {
         });
     }
 
+    @Override
+    public String toString() {
+        return "LogActivity{" +
+                "text=" + text +
+                ", scrollView=" + scrollView +
+                ", builder=" + builder +
+                ", preferences=" + preferences +
+                '}';
+    }
 }

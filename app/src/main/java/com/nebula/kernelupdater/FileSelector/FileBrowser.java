@@ -110,7 +110,7 @@ public class FileBrowser extends Activity {
                 if (f.isDirectory()) {
                     items.add(f);
                 } else if (!PICK_FOLDERS_ONLY) {
-                    if (ALLOWED_EXTENSIONS != null && f.getName().lastIndexOf(".") > 0 && ALLOWED_EXTENSIONS.indexOf(Tools.getFileExtension(f)) > -1) {
+                    if (ALLOWED_EXTENSIONS != null && f.getName().lastIndexOf('.') > 0 && ALLOWED_EXTENSIONS.indexOf(Tools.getFileExtension(f)) > -1) {
                         items.add(f);
                     } else if (ALLOWED_EXTENSIONS == null) {
                         items.add(f);
@@ -156,4 +156,16 @@ public class FileBrowser extends Activity {
         overridePendingTransition(R.anim.stay_still, R.anim.slide_in_ttb);
     }
 
+    @Override
+    public String toString() {
+        return "FileBrowser{" +
+                "WORKING_DIRECTORY=" + WORKING_DIRECTORY +
+                ", PICK_FOLDERS_ONLY=" + PICK_FOLDERS_ONLY +
+                ", comparator=" + comparator +
+                ", list=" + list +
+                ", items=" + items +
+                ", ALLOWED_EXTENSIONS=" + ALLOWED_EXTENSIONS +
+                ", adapter=" + adapter +
+                '}';
+    }
 }
