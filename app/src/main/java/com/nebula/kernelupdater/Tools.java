@@ -1,23 +1,17 @@
 package com.nebula.kernelupdater;
 
-import android.R.id;
-import android.R.style;
+import android.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DownloadManager;
-import android.app.DownloadManager.Query;
-import android.app.DownloadManager.Request;
 import android.app.Notification;
-import android.app.Notification.BigTextStyle;
-import android.app.Notification.Builder;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -26,9 +20,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.nebula.kernelupdater.R.drawable;
-import com.nebula.kernelupdater.R.string;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,8 +38,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import eu.chainfire.libsuperuser.Shell;
-import eu.chainfire.libsuperuser.Shell.Interactive;
-import eu.chainfire.libsuperuser.Shell.OnCommandResultListener;
 
 /**
  * Created by Mike on 9/19/2014.
@@ -67,27 +56,27 @@ public class Tools {
     public static Dialog userDialog;
     public static String INSTALLED_KERNEL_VERSION = "";
     private static Tools instance;
-    private static Interactive interactiveShell;
+    private static Shell.Interactive interactiveShell;
     public boolean cancelDownload;
     public int downloadSize, downloadedSize;
     public File lastDownloadedFile;
     private final Context C;
 
     private Tools(Context context) {
-        this.C = context;
-        Tools.instance = this;
-        if (Tools.interactiveShell == null)
-            Tools.interactiveShell = new Shell.Builder().useSU().setWatchdogTimeout(5).setMinimalLogging(true).open(new OnCommandResultListener() {
+        C = context;
+        instance = this;
+        if (interactiveShell == null)
+            interactiveShell = new Shell.Builder().useSU().setWatchdogTimeout(5).setMinimalLogging(true).open(new Shell.OnCommandResultListener() {
                 @Override
                 public void onCommandResult(int commandCode, int exitCode, List<String> output) {
                     if (exitCode != OnResult.SHELL_RUNNING)
-                        Tools.this.showRootFailDialog();
+                        showRootFailDialog();
                 }
             });
     }
 
     public static Tools getInstance(Context c) {
-        return Tools.instance == null ? new Tools(c) : Tools.instance;
+        return instance == null ? new Tools(c) : instance;
     }
 
     public static String getFileExtension(File f) {
@@ -164,7 +153,7 @@ public class Tools {
             } else if (m.groupCount() < 4) {
                 return "Unavailable";
             } else {
-                return new StringBuilder(Tools.INSTALLED_KERNEL_VERSION = m.group(1)).append("\n").append(
+                return new StringBuilder(INSTALLED_KERNEL_VERSION = m.group(1)).append("\n").append(
                         m.group(2)).append(" ").append(m.group(3)).append("\n")
                         .append(m.group(4)).toString();
             }
@@ -239,33 +228,33 @@ public class Tools {
     }
 
     public void showRootFailDialog() {
-        Tools.userDialog = new AlertDialog.Builder(this.C)
-                .setTitle(string.dialog_title_rootFail)
-                .setMessage(string.prompt_rootFail)
+        userDialog = new AlertDialog.Builder(C)
+                .setTitle(R.string.dialog_title_rootFail)
+                .setMessage(R.string.prompt_rootFail)
                 .setCancelable(false)
-                .setPositiveButton(string.btn_ok, null)
+                .setPositiveButton(R.string.btn_ok, null)
                 .show();
-        ((TextView) Tools.userDialog.findViewById(id.message)).setTextAppearance(this.C, style.TextAppearance_Small);
-        ((TextView) Tools.userDialog.findViewById(id.message)).setTypeface(Typeface.createFromAsset(this.C.getAssets(), "Roboto-Regular.ttf"));
+        ((TextView) userDialog.findViewById(R.id.message)).setTextAppearance(C, R.style.TextAppearance_Small);
+        ((TextView) userDialog.findViewById(R.id.message)).setTypeface(Typeface.createFromAsset(C.getAssets(), "Roboto-Regular.ttf"));
     }
 
     public void downloadFile(final String httpURL, final String destination, final String alternativeFilename, final String MD5hash, boolean useAndroidDownloadManager) {
 
-        NotificationManager manager = (NotificationManager) this.C.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager manager = (NotificationManager) C.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.cancel(Keys.TAG_NOTIF, 3721);
 
-        Tools.activity = (Activity) this.C;
-        this.cancelDownload = false;
-        this.downloadSize = 0;
-        this.downloadedSize = 0;
+        activity = (Activity) C;
+        cancelDownload = false;
+        downloadSize = 0;
+        downloadedSize = 0;
 
         if (!useAndroidDownloadManager) {
 
-            final CustomProgressDialog dialog = new CustomProgressDialog(Tools.activity);
-            dialog.setOnCancelListener(new OnCancelListener() {
+            final CustomProgressDialog dialog = new CustomProgressDialog(activity);
+            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialogInterface) {
-                    Tools.this.cancelDownload = true;
+                    cancelDownload = true;
                 }
             });
             dialog.setIndeterminate(true);
@@ -298,22 +287,22 @@ public class Tools {
 
                         filename = Main.preferences.getBoolean(Keys.KEY_SETTINGS_USESTATICFILENAME, false) ? Main.preferences.getString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, filename) : filename;
 
-                        Tools.this.lastDownloadedFile = new File(destination + filename);
+                        lastDownloadedFile = new File(destination + filename);
                         byte[] buffer = new byte[1024];
                         int bufferLength;
-                        Tools.this.downloadSize = connection.getContentLength();
+                        downloadSize = connection.getContentLength();
 
                         if (MD5hash != null) {
-                            if (Tools.this.lastDownloadedFile.exists() && Tools.this.lastDownloadedFile.isFile()) {
-                                if (Tools.getMD5Hash(Tools.this.lastDownloadedFile.getAbsolutePath()).equalsIgnoreCase(MD5hash) && !Tools.this.cancelDownload) {
-                                    Tools.activity.runOnUiThread(new Runnable() {
+                            if (lastDownloadedFile.exists() && lastDownloadedFile.isFile()) {
+                                if (getMD5Hash(lastDownloadedFile.getAbsolutePath()).equalsIgnoreCase(MD5hash) && !cancelDownload) {
+                                    activity.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             dialog.setIndeterminate(false);
-                                            String total_mb = String.format("%.2g%n", Tools.this.downloadSize / Math.pow(2, 20)).trim();
-                                            dialog.update(Tools.this.lastDownloadedFile.getName(), total_mb, total_mb);
+                                            String total_mb = String.format("%.2g%n", downloadSize / Math.pow(2, 20)).trim();
+                                            dialog.update(lastDownloadedFile.getName(), total_mb, total_mb);
                                             dialog.setProgress(100);
-                                            Tools.this.C.sendBroadcast(new Intent(Tools.EVENT_DOWNLOADEDFILE_EXISTS));
+                                            C.sendBroadcast(new Intent(EVENT_DOWNLOADEDFILE_EXISTS));
                                         }
                                     });
                                     return;
@@ -323,54 +312,54 @@ public class Tools {
 
                         new File(destination).mkdirs();
                         stream = connection.getInputStream();
-                        outputStream = new FileOutputStream(Tools.this.lastDownloadedFile);
+                        outputStream = new FileOutputStream(lastDownloadedFile);
                         while ((bufferLength = stream.read(buffer)) > 0) {
-                            if (Tools.this.cancelDownload)
+                            if (cancelDownload)
                                 return;
-                            Tools.isDownloading = true;
+                            isDownloading = true;
                             outputStream.write(buffer, 0, bufferLength);
-                            Tools.this.downloadedSize += bufferLength;
-                            Tools.activity.runOnUiThread(new Runnable() {
+                            downloadedSize += bufferLength;
+                            activity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    double done = Tools.this.downloadedSize, total = Tools.this.downloadSize;
+                                    double done = downloadedSize, total = downloadSize;
                                     Double progress = done / total * 100;
                                     dialog.setIndeterminate(false);
                                     String done_mb = String.format("%.2g%n", done / Math.pow(2, 20)).trim();
                                     String total_mb = String.format("%.2g%n", total / Math.pow(2, 20)).trim();
-                                    dialog.update(Tools.this.lastDownloadedFile.getName(), done_mb, total_mb);
+                                    dialog.update(lastDownloadedFile.getName(), done_mb, total_mb);
                                     dialog.setProgress(progress.intValue());
                                 }
                             });
                         }
 
-                        Intent out = new Intent(Tools.EVENT_DOWNLOAD_COMPLETE);
+                        Intent out = new Intent(EVENT_DOWNLOAD_COMPLETE);
                         if (MD5hash != null) {
-                            out.putExtra("match", MD5hash.equalsIgnoreCase(Tools.getMD5Hash(Tools.this.lastDownloadedFile.getAbsolutePath())));
-                            out.putExtra("md5", Tools.getMD5Hash(Tools.this.lastDownloadedFile.getAbsolutePath()));
+                            out.putExtra("match", MD5hash.equalsIgnoreCase(getMD5Hash(lastDownloadedFile.getAbsolutePath())));
+                            out.putExtra("md5", getMD5Hash(lastDownloadedFile.getAbsolutePath()));
                         }
-                        Tools.this.C.sendBroadcast(out);
+                        C.sendBroadcast(out);
 
                     } catch (final MalformedURLException e) {
-                        Tools.activity.runOnUiThread(new Runnable() {
+                        activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(Tools.this.C.getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(C.getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
                             }
                         });
                     } catch (final IOException ee) {
-                        Tools.activity.runOnUiThread(new Runnable() {
+                        activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(Tools.this.C.getApplicationContext(), ee.toString(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(C.getApplicationContext(), ee.toString(), Toast.LENGTH_SHORT).show();
                             }
                         });
                         return;
                     } finally {
-                        if (Tools.this.cancelDownload)
-                            Tools.this.C.sendBroadcast(new Intent(Tools.EVENT_DOWNLOAD_CANCELED));
+                        if (cancelDownload)
+                            C.sendBroadcast(new Intent(EVENT_DOWNLOAD_CANCELED));
                         dialog.dismiss();
-                        Tools.isDownloading = false;
+                        isDownloading = false;
                         if (stream != null)
                             try {
                                 stream.close();
@@ -397,12 +386,12 @@ public class Tools {
                 @Override
                 protected void onPreExecute() {
                     super.onPreExecute();
-                    this.dialog = new ProgressDialog(Tools.activity);
-                    this.dialog.setIndeterminate(true);
-                    this.dialog.setCancelable(false);
-                    this.dialog.setMessage(Tools.this.C.getString(string.msg_pleaseWait));
-                    this.dialog.show();
-                    Tools.userDialog = this.dialog;
+                    dialog = new ProgressDialog(activity);
+                    dialog.setIndeterminate(true);
+                    dialog.setCancelable(false);
+                    dialog.setMessage(C.getString(R.string.msg_pleaseWait));
+                    dialog.show();
+                    userDialog = dialog;
                 }
 
                 @Override
@@ -432,44 +421,44 @@ public class Tools {
                 protected void onPostExecute(String filename) {
                     super.onPostExecute(filename);
 
-                    final DownloadManager manager = (DownloadManager) Tools.this.C.getSystemService(Context.DOWNLOAD_SERVICE);
+                    final DownloadManager manager = (DownloadManager) C.getSystemService(Context.DOWNLOAD_SERVICE);
 
                     filename = Main.preferences.getBoolean(Keys.KEY_SETTINGS_USESTATICFILENAME, false) ? Main.preferences.getString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, filename) : filename;
 
-                    Uri destinationUri = Uri.fromFile(Tools.this.lastDownloadedFile = new File(destination + filename));
+                    Uri destinationUri = Uri.fromFile(lastDownloadedFile = new File(destination + filename));
 
                     if (MD5hash != null) {
-                        if (Tools.this.lastDownloadedFile.exists() && Tools.this.lastDownloadedFile.isFile()) {
-                            if (Tools.getMD5Hash(Tools.this.lastDownloadedFile.getAbsolutePath()).equalsIgnoreCase(MD5hash) && !Tools.this.cancelDownload) {
-                                Tools.activity.runOnUiThread(new Runnable() {
+                        if (lastDownloadedFile.exists() && lastDownloadedFile.isFile()) {
+                            if (getMD5Hash(lastDownloadedFile.getAbsolutePath()).equalsIgnoreCase(MD5hash) && !cancelDownload) {
+                                activity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Tools.this.C.startActivity(new Intent(Tools.this.C.getApplicationContext(), Main.class).setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-                                        Tools.this.C.sendBroadcast(new Intent(Tools.EVENT_DOWNLOADEDFILE_EXISTS));
+                                        C.startActivity(new Intent(C.getApplicationContext(), Main.class).setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                                        C.sendBroadcast(new Intent(EVENT_DOWNLOADEDFILE_EXISTS));
 
-                                        final NotificationManager manager1 = (NotificationManager) Tools.this.C.getSystemService(Context.NOTIFICATION_SERVICE);
+                                        final NotificationManager manager1 = (NotificationManager) C.getSystemService(Context.NOTIFICATION_SERVICE);
 
-                                        String bigText = Tools.this.C.getString(string.prompt_install2, Tools.this.C.getString(string.btn_install), "");
+                                        String bigText = C.getString(R.string.prompt_install2, C.getString(R.string.btn_install), "");
                                         bigText = bigText.split("\n")[0] + "\n" + bigText.split("\n")[1];
 
-                                        Notification notification = new Builder(Tools.this.C)
-                                                .setContentTitle(Tools.this.C.getString(string.dialog_title_readyToInstall))
+                                        Notification notification = new Notification.Builder(C)
+                                                .setContentTitle(C.getString(R.string.dialog_title_readyToInstall))
                                                 .setContentText(bigText)
-                                                .setStyle(new BigTextStyle().bigText(bigText))
-                                                .setSmallIcon(drawable.ic_notification)
-                                                .addAction(drawable.ic_action_flash_on, Tools.this.C.getString(string.btn_install), PendingIntent.getBroadcast(Tools.activity, 0, new Intent(Tools.ACTION_INSTALL), 0))
+                                                .setStyle(new Notification.BigTextStyle().bigText(bigText))
+                                                .setSmallIcon(R.drawable.ic_notification)
+                                                .addAction(R.drawable.ic_action_flash_on, C.getString(R.string.btn_install), PendingIntent.getBroadcast(activity, 0, new Intent(ACTION_INSTALL), 0))
                                                 .build();
 
                                         manager1.notify(Keys.TAG_NOTIF, 3723, notification);
 
-                                        Tools.this.C.registerReceiver(new BroadcastReceiver() {
+                                        C.registerReceiver(new BroadcastReceiver() {
                                             @Override
                                             public void onReceive(Context context, Intent intent) {
                                                 manager1.cancel(Keys.TAG_NOTIF, 3723);
-                                                Tools.this.C.unregisterReceiver(this);
-                                                Tools.this.createOpenRecoveryScript("install " + Tools.this.lastDownloadedFile.getAbsolutePath(), true, false);
+                                                C.unregisterReceiver(this);
+                                                createOpenRecoveryScript("install " + lastDownloadedFile.getAbsolutePath(), true, false);
                                             }
-                                        }, new IntentFilter(Tools.ACTION_INSTALL));
+                                        }, new IntentFilter(ACTION_INSTALL));
 
                                     }
                                 });
@@ -477,7 +466,7 @@ public class Tools {
                                 return;
 
                             } else {
-                                Tools.this.lastDownloadedFile.delete();
+                                lastDownloadedFile.delete();
                             }
                         }
                     }
@@ -485,13 +474,13 @@ public class Tools {
                     new File(destination).mkdirs();
 
                     final long downloadID = manager
-                            .enqueue(new Request(Uri.parse(httpURL))
+                            .enqueue(new DownloadManager.Request(Uri.parse(httpURL))
                                     .setDestinationUri(destinationUri));
 
-                    Tools.isDownloading = true;
+                    isDownloading = true;
 
-                    this.dialog.setMessage(Tools.this.C.getString(string.dialog_title_downloading));
-                    Tools.userDialog = this.dialog;
+                    dialog.setMessage(C.getString(R.string.dialog_title_downloading));
+                    userDialog = dialog;
 
                     BroadcastReceiver receiver = new BroadcastReceiver() {
                         @Override
@@ -502,18 +491,18 @@ public class Tools {
                                 if (intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L) != downloadID)
                                     return;
 
-                                Tools.this.C.unregisterReceiver(this);
-                                Tools.isDownloading = false;
+                                C.unregisterReceiver(this);
+                                isDownloading = false;
 
-                                if (Tools.userDialog != null)
-                                    Tools.userDialog.dismiss();
+                                if (userDialog != null)
+                                    userDialog.dismiss();
 
-                                Query query = new Query();
+                                DownloadManager.Query query = new DownloadManager.Query();
                                 query.setFilterById(downloadID);
                                 Cursor cursor = manager.query(query);
 
                                 if (!cursor.moveToFirst()) {
-                                    Tools.this.C.sendBroadcast(new Intent(Tools.EVENT_DOWNLOAD_CANCELED));
+                                    C.sendBroadcast(new Intent(EVENT_DOWNLOAD_CANCELED));
                                     return;
                                 }
 
@@ -521,92 +510,92 @@ public class Tools {
 
                                 if (cursor.getInt(status) == DownloadManager.STATUS_SUCCESSFUL) {
 
-                                    Tools.this.lastDownloadedFile = new File(cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME)));
-                                    Tools.this.C.startActivity(new Intent(Tools.this.C.getApplicationContext(), Main.class).setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-                                    Intent out = new Intent(Tools.EVENT_DOWNLOAD_COMPLETE);
+                                    lastDownloadedFile = new File(cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME)));
+                                    C.startActivity(new Intent(C.getApplicationContext(), Main.class).setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                                    Intent out = new Intent(EVENT_DOWNLOAD_COMPLETE);
                                     boolean match = true;
                                     String md5 = MD5hash;
 
                                     if (MD5hash != null) {
-                                        out.putExtra("match", match = MD5hash.equalsIgnoreCase(Tools.getMD5Hash(Tools.this.lastDownloadedFile.getAbsolutePath())));
-                                        out.putExtra("md5", md5 = Tools.getMD5Hash(Tools.this.lastDownloadedFile.getAbsolutePath()));
+                                        out.putExtra("match", match = MD5hash.equalsIgnoreCase(getMD5Hash(lastDownloadedFile.getAbsolutePath())));
+                                        out.putExtra("md5", md5 = getMD5Hash(lastDownloadedFile.getAbsolutePath()));
                                     }
-                                    Tools.this.C.sendBroadcast(out);
+                                    C.sendBroadcast(out);
 
-                                    Intent intent1 = new Intent(Tools.ACTION_INSTALL);
-                                    Intent intent2 = new Intent(Tools.ACTION_DISMISS);
+                                    Intent intent1 = new Intent(ACTION_INSTALL);
+                                    Intent intent2 = new Intent(ACTION_DISMISS);
                                     if (match) {
 
-                                        String bigText = Tools.this.C.getString(string.prompt_install1, Tools.this.C.getString(string.btn_install), "");
+                                        String bigText = C.getString(R.string.prompt_install1, C.getString(R.string.btn_install), "");
                                         bigText = bigText.split("\n")[0] + "\n" + bigText.split("\n")[1];
 
-                                        Notification notification = new Builder(Tools.this.C.getApplicationContext())
-                                                .setSmallIcon(drawable.ic_notification)
-                                                .setContentTitle(Tools.this.C.getString(string.msg_downloadComplete))
+                                        Notification notification = new Notification.Builder(C.getApplicationContext())
+                                                .setSmallIcon(R.drawable.ic_notification)
+                                                .setContentTitle(C.getString(R.string.msg_downloadComplete))
                                                 .setContentText(bigText)
-                                                .addAction(drawable.ic_action_flash_on, Tools.this.C.getString(string.btn_install), PendingIntent.getBroadcast(Tools.activity, 0, intent1, 0))
-                                                .setStyle(new BigTextStyle().bigText(bigText))
+                                                .addAction(R.drawable.ic_action_flash_on, C.getString(R.string.btn_install), PendingIntent.getBroadcast(activity, 0, intent1, 0))
+                                                .setStyle(new Notification.BigTextStyle().bigText(bigText))
                                                 .build();
-                                        final NotificationManager manager1 = (NotificationManager) Tools.this.C.getSystemService(Context.NOTIFICATION_SERVICE);
+                                        final NotificationManager manager1 = (NotificationManager) C.getSystemService(Context.NOTIFICATION_SERVICE);
 
-                                        Tools.this.C.registerReceiver(new BroadcastReceiver() {
+                                        C.registerReceiver(new BroadcastReceiver() {
                                             @Override
                                             public void onReceive(Context context, Intent intent) {
-                                                Tools.this.C.unregisterReceiver(this);
-                                                if (Tools.userDialog != null)
-                                                    Tools.userDialog.dismiss();
+                                                C.unregisterReceiver(this);
+                                                if (userDialog != null)
+                                                    userDialog.dismiss();
                                                 manager1.cancel(Keys.TAG_NOTIF, 3722);
 
-                                                Tools.this.createOpenRecoveryScript("install " + Tools.this.lastDownloadedFile.getAbsolutePath(), true, false);
+                                                createOpenRecoveryScript("install " + lastDownloadedFile.getAbsolutePath(), true, false);
                                             }
-                                        }, new IntentFilter(Tools.ACTION_INSTALL));
+                                        }, new IntentFilter(ACTION_INSTALL));
 
                                         manager1.notify(Keys.TAG_NOTIF, 3722, notification);
 
                                     } else {
 
-                                        Notification notification = new Builder(Tools.this.C.getApplicationContext())
-                                                .setSmallIcon(drawable.ic_notification)
-                                                .setContentTitle(Tools.this.C.getString(string.dialog_title_md5mismatch))
-                                                .setContentText(Tools.this.C.getString(string.prompt_md5mismatch, MD5hash, md5))
-                                                .addAction(drawable.ic_action_flash_on, Tools.this.C.getString(string.btn_install), PendingIntent.getBroadcast(Tools.activity, 0, intent1, 0))
-                                                .addAction(drawable.ic_action_download, Tools.this.C.getString(string.btn_downloadAgain), PendingIntent.getBroadcast(Tools.activity, 0, intent2, 0))
-                                                .setStyle(new BigTextStyle().bigText(Tools.this.C.getString(string.prompt_md5mismatch, MD5hash, md5)))
+                                        Notification notification = new Notification.Builder(C.getApplicationContext())
+                                                .setSmallIcon(R.drawable.ic_notification)
+                                                .setContentTitle(C.getString(R.string.dialog_title_md5mismatch))
+                                                .setContentText(C.getString(R.string.prompt_md5mismatch, MD5hash, md5))
+                                                .addAction(R.drawable.ic_action_flash_on, C.getString(R.string.btn_install), PendingIntent.getBroadcast(activity, 0, intent1, 0))
+                                                .addAction(R.drawable.ic_action_download, C.getString(R.string.btn_downloadAgain), PendingIntent.getBroadcast(activity, 0, intent2, 0))
+                                                .setStyle(new Notification.BigTextStyle().bigText(C.getString(R.string.prompt_md5mismatch, MD5hash, md5)))
                                                 .build();
-                                        final NotificationManager manager1 = (NotificationManager) Tools.this.C.getSystemService(Context.NOTIFICATION_SERVICE);
+                                        final NotificationManager manager1 = (NotificationManager) C.getSystemService(Context.NOTIFICATION_SERVICE);
 
                                         BroadcastReceiver receiver1 = new BroadcastReceiver() {
                                             @Override
                                             public void onReceive(Context context, Intent intent) {
-                                                Tools.this.C.unregisterReceiver(this);
+                                                C.unregisterReceiver(this);
 
-                                                if (Tools.userDialog != null)
-                                                    Tools.userDialog.dismiss();
+                                                if (userDialog != null)
+                                                    userDialog.dismiss();
 
                                                 manager1.cancel(Keys.TAG_NOTIF, 3722);
 
-                                                if (intent.getAction().equals(Tools.ACTION_INSTALL)) {
-                                                    Tools.this.createOpenRecoveryScript("install " + Tools.this.lastDownloadedFile.getAbsolutePath(), true, false);
+                                                if (intent.getAction().equals(ACTION_INSTALL)) {
+                                                    createOpenRecoveryScript("install " + lastDownloadedFile.getAbsolutePath(), true, false);
                                                 } else {
                                                     context.startActivity(new Intent(context, Main.class));
                                                 }
                                             }
                                         };
 
-                                        Tools.this.C.registerReceiver(receiver1, new IntentFilter(Tools.ACTION_INSTALL));
-                                        Tools.this.C.registerReceiver(receiver1, new IntentFilter(Tools.ACTION_DISMISS));
+                                        C.registerReceiver(receiver1, new IntentFilter(ACTION_INSTALL));
+                                        C.registerReceiver(receiver1, new IntentFilter(ACTION_DISMISS));
 
                                         manager1.notify(Keys.TAG_NOTIF, 3722, notification);
                                     }
 
                                 } else {
-                                    Toast.makeText(Tools.this.C, "error" + ": " + cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON)), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(C, "error" + ": " + cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON)), Toast.LENGTH_LONG).show();
                                 }
                             }
                         }
                     };
 
-                    Tools.this.C.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+                    C.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
                 }
             }.execute();
 
@@ -614,27 +603,27 @@ public class Tools {
     }
 
     public void createOpenRecoveryScript(String line, final boolean rebootAfter, boolean append) {
-        if (Tools.interactiveShell != null && Tools.interactiveShell.isRunning()) {
-            Tools.interactiveShell.addCommand("echo " + line + (append ? " >> " : ">") + "/cache/recovery/openrecoveryscript", 23, new OnCommandResultListener() {
+        if (interactiveShell != null && interactiveShell.isRunning()) {
+            interactiveShell.addCommand("echo " + line + (append ? " >> " : ">") + "/cache/recovery/openrecoveryscript", 23, new Shell.OnCommandResultListener() {
                 @Override
                 public void onCommandResult(int commandCode, int exitCode, List<String> output) {
                     if (exitCode != 0)
-                        Tools.this.showRootFailDialog();
+                        showRootFailDialog();
                     else if (rebootAfter) {
-                        if (Tools.activity != null)
-                            Tools.activity.runOnUiThread(new Runnable() {
+                        if (activity != null)
+                            activity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(Tools.this.C, string.onReboot, Toast.LENGTH_LONG).show();
+                                    Toast.makeText(C, R.string.onReboot, Toast.LENGTH_LONG).show();
                                 }
                             });
-                        Tools.interactiveShell.addCommand("reboot recovery");
+                        interactiveShell.addCommand("reboot recovery");
                     }
                 }
             });
 
         } else {
-            this.showRootFailDialog();
+            showRootFailDialog();
         }
     }
 
