@@ -26,10 +26,10 @@ import java.util.List;
  * Thread utility class continuously reading from an InputStream
  */
 public class StreamGobbler extends Thread {
-    private String shell = null;
-    private BufferedReader reader = null;
-    private List<String> writer = null;
-    private OnLineListener listener = null;
+    private String shell;
+    private BufferedReader reader;
+    private List<String> writer;
+    private StreamGobbler.OnLineListener listener;
 
     /**
      * <p>StreamGobbler constructor</p>
@@ -44,8 +44,8 @@ public class StreamGobbler extends Thread {
      */
     public StreamGobbler(String shell, InputStream inputStream, List<String> outputList) {
         this.shell = shell;
-        reader = new BufferedReader(new InputStreamReader(inputStream));
-        writer = outputList;
+        this.reader = new BufferedReader(new InputStreamReader(inputStream));
+        this.writer = outputList;
     }
 
     /**
@@ -59,10 +59,10 @@ public class StreamGobbler extends Thread {
      * @param inputStream    InputStream to read from
      * @param onLineListener OnLineListener callback
      */
-    public StreamGobbler(String shell, InputStream inputStream, OnLineListener onLineListener) {
+    public StreamGobbler(String shell, InputStream inputStream, StreamGobbler.OnLineListener onLineListener) {
         this.shell = shell;
-        reader = new BufferedReader(new InputStreamReader(inputStream));
-        listener = onLineListener;
+        this.reader = new BufferedReader(new InputStreamReader(inputStream));
+        this.listener = onLineListener;
     }
 
     @Override
@@ -70,17 +70,17 @@ public class StreamGobbler extends Thread {
         // keep reading the InputStream until it ends (or an error occurs)
         try {
             String line = null;
-            while ((line = reader.readLine()) != null) {
-                Debug.logOutput(String.format("[%s] %s", shell, line));
-                if (writer != null) writer.add(line);
-                if (listener != null) listener.onLine(line);
+            while ((line = this.reader.readLine()) != null) {
+                Debug.logOutput(String.format("[%s] %s", this.shell, line));
+                if (this.writer != null) this.writer.add(line);
+                if (this.listener != null) this.listener.onLine(line);
             }
         } catch (IOException e) {
         }
 
         // make sure our stream is closed and resources will be freed
         try {
-            reader.close();
+            this.reader.close();
         } catch (IOException e) {
         }
     }
@@ -104,10 +104,10 @@ public class StreamGobbler extends Thread {
     @Override
     public String toString() {
         return "StreamGobbler{" +
-                "shell='" + shell + '\'' +
-                ", reader=" + reader +
-                ", writer=" + writer +
-                ", listener=" + listener +
+                "shell='" + this.shell + '\'' +
+                ", reader=" + this.reader +
+                ", writer=" + this.writer +
+                ", listener=" + this.listener +
                 '}';
     }
 }

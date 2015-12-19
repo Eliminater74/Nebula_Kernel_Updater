@@ -37,12 +37,12 @@ public enum Debug {
     public static final int LOG_OUTPUT = 0x0004;
     public static final int LOG_NONE = 0x0000;
     public static final int LOG_ALL = 0xFFFF;
-    private static int logTypes = LOG_ALL;
+    private static int logTypes = Debug.LOG_ALL;
     private static boolean debug = BuildConfig.DEBUG;
-    private static OnLogListener logListener = null;
+    private static Debug.OnLogListener logListener;
     private static boolean sanityChecks = true;
 
-    private Debug() {
+    Debug() {
     }
 
     /**
@@ -51,7 +51,7 @@ public enum Debug {
      * @return Debug mode enabled
      */
     public static boolean getDebug() {
-        return debug;
+        return Debug.debug;
     }
 
     /**
@@ -64,7 +64,7 @@ public enum Debug {
      * @param enabled Enable debug mode ?
      */
     public static void setDebug(boolean enable) {
-        debug = enable;
+        Debug.debug = enable;
     }
 
     /**
@@ -78,11 +78,11 @@ public enum Debug {
      * @param message       The message to log
      */
     private static void logCommon(int type, String typeIndicator, String message) {
-        if (debug && ((logTypes & type) == type)) {
-            if (logListener != null) {
-                logListener.onLog(type, typeIndicator, message);
+        if (Debug.debug && (Debug.logTypes & type) == type) {
+            if (Debug.logListener != null) {
+                Debug.logListener.onLog(type, typeIndicator, message);
             } else {
-                Log.d(TAG, '[' + TAG + "][" + typeIndicator + ']' + (!message.startsWith("[") && !message.startsWith(" ") ? " " : "") + message);
+                Log.d(Debug.TAG, '[' + Debug.TAG + "][" + typeIndicator + ']' + (!message.startsWith("[") && !message.startsWith(" ") ? " " : "") + message);
             }
         }
     }
@@ -95,7 +95,7 @@ public enum Debug {
      * @param message The message to log
      */
     public static void log(String message) {
-        logCommon(LOG_GENERAL, "G", message);
+        Debug.logCommon(Debug.LOG_GENERAL, "G", message);
     }
 
     /**
@@ -106,7 +106,7 @@ public enum Debug {
      * @param message The message to log
      */
     public static void logCommand(String message) {
-        logCommon(LOG_COMMAND, "C", message);
+        Debug.logCommon(Debug.LOG_COMMAND, "C", message);
     }
 
     /**
@@ -117,7 +117,7 @@ public enum Debug {
      * @param message The message to log
      */
     public static void logOutput(String message) {
-        logCommon(LOG_OUTPUT, "O", message);
+        Debug.logCommon(Debug.LOG_OUTPUT, "O", message);
     }
 
     /**
@@ -132,9 +132,9 @@ public enum Debug {
      */
     public static void setLogTypeEnabled(int type, boolean enable) {
         if (enable) {
-            logTypes |= type;
+            Debug.logTypes |= type;
         } else {
-            logTypes &= ~type;
+            Debug.logTypes &= ~type;
         }
     }
 
@@ -149,7 +149,7 @@ public enum Debug {
      * @param type LOG_* constants
      */
     public static boolean getLogTypeEnabled(int type) {
-        return ((logTypes & type) == type);
+        return (Debug.logTypes & type) == type;
     }
 
     /**
@@ -162,7 +162,7 @@ public enum Debug {
      * @param type LOG_* constants
      */
     public static boolean getLogTypeEnabledEffective(int type) {
-        return debug && getLogTypeEnabled(type);
+        return Debug.debug && Debug.getLogTypeEnabled(type);
     }
 
     /**
@@ -170,8 +170,8 @@ public enum Debug {
      *
      * @return Current custom log handler or NULL if none is present
      */
-    public static OnLogListener getOnLogListener() {
-        return logListener;
+    public static Debug.OnLogListener getOnLogListener() {
+        return Debug.logListener;
     }
 
     /**
@@ -183,8 +183,8 @@ public enum Debug {
      *
      * @param onLogListener Custom log listener or NULL to revert to default
      */
-    public static void setOnLogListener(OnLogListener onLogListener) {
-        logListener = onLogListener;
+    public static void setOnLogListener(Debug.OnLogListener onLogListener) {
+        Debug.logListener = onLogListener;
     }
 
     // ----- SANITY CHECKS -----
@@ -198,7 +198,7 @@ public enum Debug {
      * @return True if enabled
      */
     public static boolean getSanityChecksEnabled() {
-        return sanityChecks;
+        return Debug.sanityChecks;
     }
 
     /**
@@ -210,7 +210,7 @@ public enum Debug {
      * @param enabled Enable or disable
      */
     public static void setSanityChecksEnabled(boolean enable) {
-        sanityChecks = enable;
+        Debug.sanityChecks = enable;
     }
 
     /**
@@ -221,7 +221,7 @@ public enum Debug {
      * @return True if enabled
      */
     public static boolean getSanityChecksEnabledEffective() {
-        return debug && sanityChecks;
+        return Debug.debug && Debug.sanityChecks;
     }
 
     /**
@@ -230,7 +230,7 @@ public enum Debug {
      * @return Running on main thread ?
      */
     public static boolean onMainThread() {
-        return ((Looper.myLooper() != null) && (Looper.myLooper() == Looper.getMainLooper()));
+        return Looper.myLooper() != null && Looper.myLooper() == Looper.getMainLooper();
     }
 
     public interface OnLogListener {

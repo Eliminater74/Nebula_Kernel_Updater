@@ -784,7 +784,7 @@ public class Main extends AppCompatActivity implements SwipeRefreshLayout.OnRefr
             final String[] choices = bases;
 
             new AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.prompt_romBase))
+                    .setTitle(getString(R.string.prompt_DevBranch))
                     .setCancelable(false)
                     .setSingleChoiceItems(bases, Tools.findIndex(bases, preferences.getString(Keys.KEY_SETTINGS_ROMBASE, "null")), new DialogInterface.OnClickListener() {
                         @Override

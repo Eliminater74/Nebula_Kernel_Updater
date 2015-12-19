@@ -3,14 +3,21 @@ package com.nebula.kernelupdater.FileSelector;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.nebula.kernelupdater.R;
+import com.nebula.kernelupdater.R.anim;
+import com.nebula.kernelupdater.R.id;
+import com.nebula.kernelupdater.R.layout;
 import com.nebula.kernelupdater.Tools;
 
 import java.io.File;
@@ -45,48 +52,48 @@ public class FileBrowser extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.file_browser_layout);
-        overridePendingTransition(R.anim.slide_in_btt, R.anim.stay_still);
+        this.setContentView(layout.file_browser_layout);
+        this.overridePendingTransition(anim.slide_in_btt, anim.stay_still);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (getActionBar() != null)
-                getActionBar().setElevation(5);
+        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+            if (this.getActionBar() != null)
+                this.getActionBar().setElevation(5);
         }
 
-        Bundle extras = getIntent().getExtras();
+        Bundle extras = this.getIntent().getExtras();
 
         try {
-            ALLOWED_EXTENSIONS = extras.getStringArrayList("ALLOWED_EXTENSIONS");
+            this.ALLOWED_EXTENSIONS = extras.getStringArrayList("ALLOWED_EXTENSIONS");
         } catch (NullPointerException e) {
-            ALLOWED_EXTENSIONS = null;
+            this.ALLOWED_EXTENSIONS = null;
         }
         try {
-            PICK_FOLDERS_ONLY = extras.getBoolean("PICK_FOLDERS_ONLY");
+            this.PICK_FOLDERS_ONLY = extras.getBoolean("PICK_FOLDERS_ONLY");
         } catch (NullPointerException e) {
-            PICK_FOLDERS_ONLY = false;
+            this.PICK_FOLDERS_ONLY = false;
         }
         try {
             Bundle bundle = new Bundle();
             bundle.putString("folder", extras.getString("START"));
-            updateScreen(bundle);
+            this.updateScreen(bundle);
         } catch (NullPointerException ignored) {
-            updateScreen(null);
+            this.updateScreen(null);
         }
 
-        findViewById(R.id.btn_select).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(id.btn_select).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent out = new Intent(ACTION_DIRECTORY_SELECTED);
-                out.putExtra("folder", WORKING_DIRECTORY.getAbsolutePath() + File.separator);
-                sendBroadcast(out);
-                finish();
+                Intent out = new Intent(FileBrowser.ACTION_DIRECTORY_SELECTED);
+                out.putExtra("folder", FileBrowser.this.WORKING_DIRECTORY.getAbsolutePath() + File.separator);
+                FileBrowser.this.sendBroadcast(out);
+                FileBrowser.this.finish();
             }
         });
 
-        findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(id.btn_cancel).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                FileBrowser.this.finish();
             }
         });
     }
@@ -96,38 +103,38 @@ public class FileBrowser extends Activity {
                 Environment.getExternalStorageDirectory() : new File(pac.getString("folder")).isDirectory() ?
                 new File(pac.getString("folder")) : Environment.getExternalStorageDirectory();
 
-        WORKING_DIRECTORY = root;
-        ((TextView) findViewById(R.id.textView_cd)).setText(root.getAbsolutePath());
-        list = (ListView) findViewById(R.id.list);
+        this.WORKING_DIRECTORY = root;
+        ((TextView) this.findViewById(id.textView_cd)).setText(root.getAbsolutePath());
+        this.list = (ListView) this.findViewById(id.list);
 
-        if (items == null)
-            items = new ArrayList<File>();
+        if (this.items == null)
+            this.items = new ArrayList<File>();
         else
-            items.clear();
+            this.items.clear();
 
         if (root.listFiles() != null) {
             for (File f : root.listFiles()) {
                 if (f.isDirectory()) {
-                    items.add(f);
-                } else if (!PICK_FOLDERS_ONLY) {
-                    if (ALLOWED_EXTENSIONS != null && f.getName().lastIndexOf('.') > 0 && ALLOWED_EXTENSIONS.indexOf(Tools.getFileExtension(f)) > -1) {
-                        items.add(f);
-                    } else if (ALLOWED_EXTENSIONS == null) {
-                        items.add(f);
+                    this.items.add(f);
+                } else if (!this.PICK_FOLDERS_ONLY) {
+                    if (this.ALLOWED_EXTENSIONS != null && f.getName().lastIndexOf('.') > 0 && this.ALLOWED_EXTENSIONS.indexOf(Tools.getFileExtension(f)) > -1) {
+                        this.items.add(f);
+                    } else if (this.ALLOWED_EXTENSIONS == null) {
+                        this.items.add(f);
                     }
                 }
             }
 
-            Collections.sort(items, comparator);
+            Collections.sort(this.items, this.comparator);
         }
 
         if (root.getParentFile() != null)
-            items.add(0, root.getParentFile());
+            this.items.add(0, root.getParentFile());
 
-        final Adapter myAdapter = new Adapter(FileBrowser.this, R.layout.file_browser_list_item, items);
-        adapter = myAdapter;
-        list.setAdapter(myAdapter);
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        final Adapter myAdapter = new Adapter(this, layout.file_browser_list_item, this.items);
+        this.adapter = myAdapter;
+        this.list.setAdapter(myAdapter);
+        this.list.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if (myAdapter.files.get(i).isDirectory()) {
@@ -135,7 +142,7 @@ public class FileBrowser extends Activity {
                         return;
                     Bundle pac = new Bundle();
                     pac.putString("folder", myAdapter.files.get(i).getAbsolutePath());
-                    updateScreen(pac);
+                    FileBrowser.this.updateScreen(pac);
                 }
             }
         });
@@ -143,29 +150,29 @@ public class FileBrowser extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (WORKING_DIRECTORY.getAbsolutePath().equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath()))
+        if (this.WORKING_DIRECTORY.getAbsolutePath().equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath()))
             return;
         Bundle pac = new Bundle();
-        pac.putString("folder", adapter.files.get(0).getAbsolutePath());
-        updateScreen(pac);
+        pac.putString("folder", this.adapter.files.get(0).getAbsolutePath());
+        this.updateScreen(pac);
     }
 
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.stay_still, R.anim.slide_in_ttb);
+        this.overridePendingTransition(anim.stay_still, anim.slide_in_ttb);
     }
 
     @Override
     public String toString() {
         return "FileBrowser{" +
-                "WORKING_DIRECTORY=" + WORKING_DIRECTORY +
-                ", PICK_FOLDERS_ONLY=" + PICK_FOLDERS_ONLY +
-                ", comparator=" + comparator +
-                ", list=" + list +
-                ", items=" + items +
-                ", ALLOWED_EXTENSIONS=" + ALLOWED_EXTENSIONS +
-                ", adapter=" + adapter +
+                "WORKING_DIRECTORY=" + this.WORKING_DIRECTORY +
+                ", PICK_FOLDERS_ONLY=" + this.PICK_FOLDERS_ONLY +
+                ", comparator=" + this.comparator +
+                ", list=" + this.list +
+                ", items=" + this.items +
+                ", ALLOWED_EXTENSIONS=" + this.ALLOWED_EXTENSIONS +
+                ", adapter=" + this.adapter +
                 '}';
     }
 }

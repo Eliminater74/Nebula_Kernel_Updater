@@ -62,7 +62,7 @@ public class Application extends android.app.Application {
      * @param r Runnable to run
      */
     public void runInApplicationThread(Runnable r) {
-        mApplicationHandler.post(r);
+        Application.mApplicationHandler.post(r);
     }
 
     @Override

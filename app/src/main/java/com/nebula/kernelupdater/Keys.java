@@ -37,6 +37,6 @@ public enum Keys {
     public static final String KEY_KERNEL_MD5 = "_md5:=";
     public static final String KEY_KERNEL_test = "_testbuild:=";
 
-    private Keys() {
+    Keys() {
     }
 }

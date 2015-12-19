@@ -1,18 +1,25 @@
 package com.nebula.kernelupdater;
 
+import android.R.style;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
@@ -24,11 +31,13 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewManager;
 import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -36,6 +45,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nebula.kernelupdater.FileSelector.FileBrowser;
+import com.nebula.kernelupdater.R.anim;
+import com.nebula.kernelupdater.R.id;
+import com.nebula.kernelupdater.R.layout;
+import com.nebula.kernelupdater.R.string;
 import com.nebula.kernelupdater.Services.BackgroundAutoCheckService;
 
 import java.net.HttpURLConnection;
@@ -52,7 +65,7 @@ public class Settings extends AppCompatActivity {
     private boolean screenUpdating;
 
     private TextView AC_H, AC_M;
-    private TextWatcher intervalChanger = new TextWatcher() {
+    private final TextWatcher intervalChanger = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence sequence, int i, int i2, int i3) {
 
@@ -65,25 +78,25 @@ public class Settings extends AppCompatActivity {
 
         @Override
         public void afterTextChanged(Editable editable) {
-            findViewById(R.id.editText_autocheck_h).post(new Runnable() {
+            Settings.this.findViewById(id.editText_autocheck_h).post(new Runnable() {
                 @Override
                 public void run() {
-                    String hours = AC_H.getText().toString(), minutes = AC_M.getText().toString();
-                    if ((Tools.isAllDigits(hours) && Integer.parseInt(hours) == 0) && (Tools.isAllDigits(minutes) && Integer.parseInt(minutes) == 0))
+                    String hours = Settings.this.AC_H.getText().toString(), minutes = Settings.this.AC_M.getText().toString();
+                    if (Tools.isAllDigits(hours) && Integer.parseInt(hours) == 0 && Tools.isAllDigits(minutes) && Integer.parseInt(minutes) == 0)
                         return;
                     Main.preferences.edit().putString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, (hours.length() > 0 ? hours : "0") + ':' + (minutes.length() > 0 ? minutes : "0")).apply();
                 }
             });
         }
     };
-    private SharedPreferences.OnSharedPreferenceChangeListener prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+    private final OnSharedPreferenceChangeListener prefListener = new OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            updateScreen();
+            Settings.this.updateScreen();
             if (s.equals(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL) && Main.preferences.getBoolean(Keys.KEY_SETTINGS_AUTOCHECK_ENABLED, true)) {
                 Intent intent = new Intent(Settings.this, BackgroundAutoCheckService.class);
-                stopService(intent);
-                startService(intent);
+                Settings.this.stopService(intent);
+                Settings.this.startService(intent);
             }
         }
     };
@@ -91,54 +104,54 @@ public class Settings extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        activity = this;
-        overridePendingTransition(R.anim.slide_in_rtl, R.anim.slide_out_rtl);
+        this.activity = this;
+        this.overridePendingTransition(anim.slide_in_rtl, anim.slide_out_rtl);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings_layout);
+        this.setContentView(layout.settings_layout);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (getSupportActionBar() != null)
-                getSupportActionBar().setElevation(5);
+        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
+            if (this.getSupportActionBar() != null)
+                this.getSupportActionBar().setElevation(5);
         }
 
-        ((CompoundButton) findViewById(R.id.checkbox_useProxy)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) this.findViewById(id.checkbox_useProxy)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_USEPROXY, b).apply();
-                findViewById(R.id.title0).setEnabled(b);
-                findViewById(R.id.btn_editProxy).setEnabled(b);
-                if (!screenUpdating)
-                    Toast.makeText(getApplicationContext(), R.string.msg_restartApplication, Toast.LENGTH_LONG).show();
+                Settings.this.findViewById(id.title0).setEnabled(b);
+                Settings.this.findViewById(id.btn_editProxy).setEnabled(b);
+                if (!Settings.this.screenUpdating)
+                    Toast.makeText(Settings.this.getApplicationContext(), string.msg_restartApplication, Toast.LENGTH_LONG).show();
             }
         });
 
-        findViewById(R.id.btn_editProxy).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(id.btn_editProxy).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Dialog d = new Dialog(Settings.this);
                 d.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                d.setContentView(R.layout.dialog_proxy);
+                d.setContentView(layout.dialog_proxy);
                 d.setCancelable(true);
                 d.show();
 
-                final EditText IP = (EditText) d.findViewById(R.id.ip), PORT = (EditText) d.findViewById(R.id.port);
+                final EditText IP = (EditText) d.findViewById(id.ip), PORT = (EditText) d.findViewById(id.port);
                 String currentHost = Main.preferences.getString(Keys.KEY_SETTINGS_PROXYHOST, Keys.DEFAULT_PROXY);
                 IP.setText(currentHost.substring(0, currentHost.indexOf(':')));
                 PORT.setText(currentHost.substring(currentHost.indexOf(':') + 1));
 
-                SpannableString ss0 = new SpannableString(getString(R.string.proxy_list));
+                SpannableString ss0 = new SpannableString(Settings.this.getString(string.proxy_list));
                 ss0.setSpan(new UnderlineSpan(), 0, ss0.length(), 0);
-                ((TextView) d.findViewById(R.id.pl)).setText(ss0);
+                ((TextView) d.findViewById(id.pl)).setText(ss0);
 
-                SpannableString ss1 = new SpannableString(getString(R.string.defaultt));
+                SpannableString ss1 = new SpannableString(Settings.this.getString(string.defaultt));
                 ss1.setSpan(new UnderlineSpan(), 0, ss1.length(), 0);
-                ((TextView) d.findViewById(R.id.dp)).setText(ss1);
+                ((TextView) d.findViewById(id.dp)).setText(ss1);
 
-                d.findViewById(R.id.dp).setOnClickListener(new View.OnClickListener() {
+                d.findViewById(id.dp).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         String host = Keys.DEFAULT_PROXY;
@@ -147,60 +160,60 @@ public class Settings extends AppCompatActivity {
                     }
                 });
 
-                d.findViewById(R.id.pl).setOnClickListener(new View.OnClickListener() {
+                d.findViewById(id.pl).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(Keys.PROXY_LIST));
-                        startActivity(intent);
+                        Settings.this.startActivity(intent);
                     }
                 });
 
-                d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                d.setOnDismissListener(new OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialog) {
                         String ip = IP.getText().toString(), port = PORT.getText().toString();
                         if (Tools.validateIP(ip) && port.length() > 0) {
                             Main.preferences.edit().putString(Keys.KEY_SETTINGS_PROXYHOST, ip + ':' + port).apply();
-                            Toast.makeText(getApplicationContext(), R.string.msg_restartApplication, Toast.LENGTH_LONG).show();
+                            Toast.makeText(Settings.this.getApplicationContext(), string.msg_restartApplication, Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(getApplicationContext(), R.string.msg_invalidProxy, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Settings.this.getApplicationContext(), string.msg_invalidProxy, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
             }
         });
 
-        ((CompoundButton) findViewById(R.id.checkbox_useAndDM)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) this.findViewById(id.checkbox_useAndDM)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_USEANDM, b).apply();
-                findViewById(R.id.title1).setEnabled(b);
+                Settings.this.findViewById(id.title1).setEnabled(b);
             }
         });
 
-        findViewById(R.id.btn_dlLoc).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(id.btn_dlLoc).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(Settings.this, FileBrowser.class);
                 i.putExtra("START", Main.preferences.getString(Keys.KEY_SETTINGS_DOWNLOADLOCATION, ""));
                 i.putExtra("PICK_FOLDERS_ONLY", true);
-                startActivity(i);
+                Settings.this.startActivity(i);
                 BroadcastReceiver receiver = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
                         if (intent.getAction().equals(FileBrowser.ACTION_DIRECTORY_SELECTED)) {
                             String newF = intent.getStringExtra("folder");
                             Main.preferences.edit().putString(Keys.KEY_SETTINGS_DOWNLOADLOCATION, newF).apply();
-                            ((TextView) findViewById(R.id.textView_dlLoc)).setText(newF);
-                            unregisterReceiver(this);
+                            ((TextView) Settings.this.findViewById(id.textView_dlLoc)).setText(newF);
+                            Settings.this.unregisterReceiver(this);
                         }
                     }
                 };
-                registerReceiver(receiver, new IntentFilter(FileBrowser.ACTION_DIRECTORY_SELECTED));
+                Settings.this.registerReceiver(receiver, new IntentFilter(FileBrowser.ACTION_DIRECTORY_SELECTED));
             }
         });
 
-        findViewById(R.id.btn_upSrc).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(id.btn_upSrc).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String currentSource = Main.preferences.getString(Keys.KEY_SETTINGS_SOURCE, Keys.DEFAULT_SOURCE);
@@ -208,10 +221,10 @@ public class Settings extends AppCompatActivity {
                 if (Keys.DEFAULT_SOURCE.equalsIgnoreCase(currentSource))
                     currentSource = "";
 
-                Object[] obj = showDialog(getString(R.string.prompt_blankDefault), "http://", currentSource);
-                final Dialog dialog = (Dialog) obj[0];
+                Object[] obj = Settings.this.showDialog(Settings.this.getString(string.prompt_blankDefault), "http://", currentSource);
+                Dialog dialog = (Dialog) obj[0];
                 final EditText editText = (EditText) obj[1];
-                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                dialog.setOnDismissListener(new OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialogInterface) {
                         String newSource = editText.getText().toString().trim();
@@ -224,13 +237,13 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        ((CompoundButton) findViewById(R.id.checkbox_useStaticFilename)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) this.findViewById(id.checkbox_useStaticFilename)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
 
-                findViewById(R.id.title2).setEnabled(b);
-                findViewById(R.id.btn_staticFilename).setEnabled(b);
-                findViewById(R.id.btn_staticFilename).setClickable(b);
+                Settings.this.findViewById(id.title2).setEnabled(b);
+                Settings.this.findViewById(id.btn_staticFilename).setEnabled(b);
+                Settings.this.findViewById(id.btn_staticFilename).setClickable(b);
 
                 if (!b) {
                     Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_USESTATICFILENAME, false).apply();
@@ -242,17 +255,17 @@ public class Settings extends AppCompatActivity {
                     return;
                 }
 
-                Object[] obj = showDialog(getString(R.string.prompt_zipExtension), "filename.zip", Main.preferences.getString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, null));
-                final Dialog dialog = (Dialog) obj[0];
+                Object[] obj = Settings.this.showDialog(Settings.this.getString(string.prompt_zipExtension), "filename.zip", Main.preferences.getString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, null));
+                Dialog dialog = (Dialog) obj[0];
                 final EditText editText = (EditText) obj[1];
-                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                dialog.setOnDismissListener(new OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialogInterface) {
                         String newName = editText.getText().toString().trim();
                         if (newName.length() < 1 || newName.equalsIgnoreCase(".zip")) {
-                            Toast.makeText(getApplicationContext(), R.string.msg_invalidFilename, Toast.LENGTH_LONG).show();
+                            Toast.makeText(Settings.this.getApplicationContext(), string.msg_invalidFilename, Toast.LENGTH_LONG).show();
                             Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_USESTATICFILENAME, false).apply();
-                            updateScreen();
+                            Settings.this.updateScreen();
                             return;
                         }
                         Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_USESTATICFILENAME, true).apply();
@@ -262,26 +275,26 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        ((CompoundButton) findViewById(R.id.checkbox_receiveBeta)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) this.findViewById(id.checkbox_receiveBeta)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_LOOKFORBETA, b).apply();
-                findViewById(R.id.title3).setEnabled(b);
+                Settings.this.findViewById(id.title3).setEnabled(b);
             }
         });
 
-        findViewById(R.id.btn_staticFilename).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(id.btn_staticFilename).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Object[] obj = showDialog(getString(R.string.prompt_zipExtension), "filename.zip", Main.preferences.getString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, null));
-                final Dialog dialog = (Dialog) obj[0];
+                Object[] obj = Settings.this.showDialog(Settings.this.getString(string.prompt_zipExtension), "filename.zip", Main.preferences.getString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, null));
+                Dialog dialog = (Dialog) obj[0];
                 final EditText editText = (EditText) obj[1];
-                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                dialog.setOnDismissListener(new OnDismissListener() {
                     @Override
                     public void onDismiss(DialogInterface dialogInterface) {
                         String newName = editText.getText().toString().trim();
                         if (newName.length() < 1 || newName.equalsIgnoreCase(".zip")) {
-                            Toast.makeText(getApplicationContext(), R.string.msg_invalidFilename, Toast.LENGTH_LONG).show();
+                            Toast.makeText(Settings.this.getApplicationContext(), string.msg_invalidFilename, Toast.LENGTH_LONG).show();
                             return;
                         } else
                             Main.preferences.edit().putString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, editText.getText().toString().trim()).apply();
@@ -290,7 +303,7 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.btn_romBase).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(id.btn_romBase).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new AsyncTask<Void, Void, Void>() {
@@ -301,25 +314,25 @@ public class Settings extends AppCompatActivity {
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
-                        d = new ProgressDialog(Settings.this);
-                        d.setMessage(getString(R.string.msg_pleaseWait));
-                        d.setIndeterminate(true);
-                        d.setCancelable(false);
-                        d.show();
+                        this.d = new ProgressDialog(Settings.this);
+                        this.d.setMessage(Settings.this.getString(string.msg_pleaseWait));
+                        this.d.setIndeterminate(true);
+                        this.d.setCancelable(false);
+                        this.d.show();
                     }
 
                     @Override
                     protected Void doInBackground(Void... voids) {
                         try {
 
-                            if (!getDevicePart())
-                                throw new Exception(getString(R.string.msg_device_not_supported));
+                            if (!Settings.this.getDevicePart())
+                                throw new Exception(Settings.this.getString(string.msg_device_not_supported));
 
-                            Scanner s = new Scanner(DEVICE_PART);
+                            Scanner s = new Scanner(Settings.this.DEVICE_PART);
                             while (s.hasNextLine()) {
                                 String line = s.nextLine();
                                 if (line.startsWith("#define") && line.contains(Keys.KEY_DEFINE_BB)) {
-                                    versions = line.split("=")[1];
+                                    this.versions = line.split("=")[1];
                                     break;
                                 }
                             }
@@ -327,10 +340,10 @@ public class Settings extends AppCompatActivity {
                             s.close();
 
                         } catch (final Exception e) {
-                            Settings.this.runOnUiThread(new Runnable() {
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(Settings.this.getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -340,25 +353,25 @@ public class Settings extends AppCompatActivity {
                     @Override
                     protected void onPostExecute(Void aVoid) {
                         super.onPostExecute(aVoid);
-                        d.dismiss();
+                        this.d.dismiss();
 
-                        if (versions == null)
+                        if (this.versions == null)
                             return;
 
-                        final String[] choices = versions.split(",");
+                        final String[] choices = this.versions.split(",");
                         for (int i = 0; i < choices.length; i++) {
                             choices[i] = choices[i].trim();
                         }
-                        Dialog d = new AlertDialog.Builder(Settings.this)
-                                .setTitle(R.string.prompt_romBase)
-                                .setSingleChoiceItems(choices, Tools.findIndex(choices, Main.preferences.getString(Keys.KEY_SETTINGS_ROMBASE, "null")), new DialogInterface.OnClickListener() {
+                        Dialog d = new Builder(Settings.this)
+                                .setTitle(string.prompt_DevBranch)
+                                .setSingleChoiceItems(choices, Tools.findIndex(choices, Main.preferences.getString(Keys.KEY_SETTINGS_ROMBASE, "null")), new OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         Main.preferences.edit().putString(Keys.KEY_SETTINGS_ROMBASE, choices[i]).apply();
                                     }
                                 })
                                 .setCancelable(false)
-                                .setPositiveButton(R.string.btn_ok, null)
+                                .setPositiveButton(string.btn_ok, null)
                                 .show();
                         Tools.userDialog = d;
                     }
@@ -366,7 +379,7 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.btn_romApi).setOnClickListener(new View.OnClickListener() {
+        this.findViewById(id.btn_romApi).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new AsyncTask<Void, Void, Void>() {
@@ -377,25 +390,25 @@ public class Settings extends AppCompatActivity {
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
-                        d = new ProgressDialog(Settings.this);
-                        d.setMessage(getString(R.string.msg_pleaseWait));
-                        d.setIndeterminate(true);
-                        d.setCancelable(false);
-                        d.show();
+                        this.d = new ProgressDialog(Settings.this);
+                        this.d.setMessage(Settings.this.getString(string.msg_pleaseWait));
+                        this.d.setIndeterminate(true);
+                        this.d.setCancelable(false);
+                        this.d.show();
                     }
 
                     @Override
                     protected Void doInBackground(Void... voids) {
                         try {
 
-                            if (!getDevicePart())
-                                throw new Exception(getString(R.string.msg_device_not_supported));
+                            if (!Settings.this.getDevicePart())
+                                throw new Exception(Settings.this.getString(string.msg_device_not_supported));
 
-                            Scanner s = new Scanner(DEVICE_PART);
+                            Scanner s = new Scanner(Settings.this.DEVICE_PART);
                             while (s.hasNextLine()) {
                                 String line = s.nextLine();
                                 if (line.startsWith("#define") && line.contains(Keys.KEY_DEFINE_AV)) {
-                                    versions = line.split("=")[1];
+                                    this.versions = line.split("=")[1];
                                     break;
                                 }
                             }
@@ -403,10 +416,10 @@ public class Settings extends AppCompatActivity {
                             s.close();
 
                         } catch (final Exception e) {
-                            Settings.this.runOnUiThread(new Runnable() {
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(Settings.this.getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -416,25 +429,25 @@ public class Settings extends AppCompatActivity {
                     @Override
                     protected void onPostExecute(Void aVoid) {
                         super.onPostExecute(aVoid);
-                        d.dismiss();
+                        this.d.dismiss();
 
-                        if (versions == null)
+                        if (this.versions == null)
                             return;
 
-                        final String[] choices = versions.split(",");
+                        final String[] choices = this.versions.split(",");
                         for (int i = 0; i < choices.length; i++) {
                             choices[i] = choices[i].trim();
                         }
-                        Dialog d = new AlertDialog.Builder(Settings.this)
-                                .setTitle(R.string.prompt_android_version)
-                                .setSingleChoiceItems(choices, Tools.findIndex(choices, Main.preferences.getString(Keys.KEY_SETTINGS_ROMAPI, "null")), new DialogInterface.OnClickListener() {
+                        Dialog d = new Builder(Settings.this)
+                                .setTitle(string.prompt_android_version)
+                                .setSingleChoiceItems(choices, Tools.findIndex(choices, Main.preferences.getString(Keys.KEY_SETTINGS_ROMAPI, "null")), new OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         Main.preferences.edit().putString(Keys.KEY_SETTINGS_ROMAPI, choices[i]).apply();
                                     }
                                 })
                                 .setCancelable(false)
-                                .setPositiveButton(R.string.btn_ok, null)
+                                .setPositiveButton(string.btn_ok, null)
                                 .show();
                         Tools.userDialog = d;
                     }
@@ -442,74 +455,74 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        ((CompoundButton) findViewById(R.id.switch_bkg_check)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) this.findViewById(id.switch_bkg_check)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_AUTOCHECK_ENABLED, b).apply();
             }
         });
 
-        (AC_H = (TextView) findViewById(R.id.editText_autocheck_h)).addTextChangedListener(intervalChanger);
-        (AC_M = (TextView) findViewById(R.id.editText_autocheck_m)).addTextChangedListener(intervalChanger);
+        (this.AC_H = (TextView) this.findViewById(id.editText_autocheck_h)).addTextChangedListener(this.intervalChanger);
+        (this.AC_M = (TextView) this.findViewById(id.editText_autocheck_m)).addTextChangedListener(this.intervalChanger);
 
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                View child = ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.blank_view, null);
+                View child = ((LayoutInflater) Settings.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(layout.blank_view, null);
                 final NumberPicker picker = new NumberPicker(Settings.this);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                picker.setMaxValue(view == AC_H ? 168 : 59);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+                picker.setMaxValue(view == Settings.this.AC_H ? 168 : 59);
                 picker.setMinValue(0);
-                picker.setValue(Integer.parseInt(Main.preferences.getString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, "12:00").split(":")[(view == AC_H ? 0 : 1)]));
+                picker.setValue(Integer.parseInt(Main.preferences.getString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, "12:00").split(":")[view == Settings.this.AC_H ? 0 : 1]));
                 ((ViewManager) child).addView(picker, params);
                 ((LinearLayout) child).setGravity(Gravity.CENTER_HORIZONTAL);
                 child.setPadding(30, 0, 30, 0);
-                AlertDialog.Builder builder = new AlertDialog.Builder(Settings.this);
-                builder.setTitle(R.string.settings_textView_backgroundCheckInterval);
+                Builder builder = new Builder(Settings.this);
+                builder.setTitle(string.settings_textView_backgroundCheckInterval);
                 builder.setView(child);
-                builder.setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(string.btn_ok, new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        updateTextView((TextView) view, String.valueOf(picker.getValue()));
+                        Settings.this.updateTextView((TextView) view, String.valueOf(picker.getValue()));
                     }
                 });
-                builder.setNegativeButton(R.string.btn_cancel, null);
+                builder.setNegativeButton(string.btn_cancel, null);
                 builder.show();
             }
         };
 
-        AC_H.setOnClickListener(listener);
-        AC_M.setOnClickListener(listener);
+        this.AC_H.setOnClickListener(listener);
+        this.AC_M.setOnClickListener(listener);
 
-        AC_H.post(new Runnable() {
+        this.AC_H.post(new Runnable() {
             @Override
             public void run() {
-                AC_H.setLayoutParams(new LinearLayout.LayoutParams(AC_H.getMeasuredWidth(), AC_H.getMeasuredWidth()));
-                AC_M.setLayoutParams(new LinearLayout.LayoutParams(AC_M.getMeasuredWidth(), AC_M.getMeasuredWidth()));
+                Settings.this.AC_H.setLayoutParams(new LinearLayout.LayoutParams(Settings.this.AC_H.getMeasuredWidth(), Settings.this.AC_H.getMeasuredWidth()));
+                Settings.this.AC_M.setLayoutParams(new LinearLayout.LayoutParams(Settings.this.AC_M.getMeasuredWidth(), Settings.this.AC_M.getMeasuredWidth()));
             }
         });
 
-        ((CompoundButton) findViewById(R.id.switch_bkg_check)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ((CompoundButton) this.findViewById(id.switch_bkg_check)).setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Main.preferences.edit().putBoolean(Keys.KEY_SETTINGS_AUTOCHECK_ENABLED, b).apply();
-                LinearLayout linearLayout = (LinearLayout) findViewById(R.id.linear_bkg_check_edit);
-                for (int i = 0; i < (linearLayout).getChildCount(); i++) {
+                LinearLayout linearLayout = (LinearLayout) Settings.this.findViewById(id.linear_bkg_check_edit);
+                for (int i = 0; i < linearLayout.getChildCount(); i++) {
                     linearLayout.getChildAt(i).setEnabled(b);
                 }
                 if (!b) {
-                    stopService(new Intent(Settings.this, BackgroundAutoCheckService.class));
+                    Settings.this.stopService(new Intent(Settings.this, BackgroundAutoCheckService.class));
                 } else {
                     Intent i = new Intent(Settings.this, BackgroundAutoCheckService.class);
-                    stopService(i);
-                    startService(i);
+                    Settings.this.stopService(i);
+                    Settings.this.startService(i);
                 }
             }
         });
 
-        updateScreen();
+        this.updateScreen();
 
-        Main.preferences.registerOnSharedPreferenceChangeListener(prefListener);
+        Main.preferences.registerOnSharedPreferenceChangeListener(this.prefListener);
 
     }
 
@@ -518,49 +531,49 @@ public class Settings extends AppCompatActivity {
     }
 
     private void updateScreen() {
-        screenUpdating = true;
-        ((Checkable) findViewById(R.id.switch_bkg_check)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_AUTOCHECK_ENABLED, true));
-        ((TextView) findViewById(R.id.textView_dlLoc)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_DOWNLOADLOCATION, ""));
-        ((TextView) findViewById(R.id.proxyHost)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_PROXYHOST, Keys.DEFAULT_PROXY));
-        ((Checkable) findViewById(R.id.checkbox_useProxy)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USEPROXY, false));
-        ((Checkable) findViewById(R.id.checkbox_useAndDM)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USEANDM, false));
-        ((Checkable) findViewById(R.id.checkbox_receiveBeta)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_LOOKFORBETA, false));
+        this.screenUpdating = true;
+        ((Checkable) this.findViewById(id.switch_bkg_check)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_AUTOCHECK_ENABLED, true));
+        ((TextView) this.findViewById(id.textView_dlLoc)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_DOWNLOADLOCATION, ""));
+        ((TextView) this.findViewById(id.proxyHost)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_PROXYHOST, Keys.DEFAULT_PROXY));
+        ((Checkable) this.findViewById(id.checkbox_useProxy)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USEPROXY, false));
+        ((Checkable) this.findViewById(id.checkbox_useAndDM)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USEANDM, false));
+        ((Checkable) this.findViewById(id.checkbox_receiveBeta)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_LOOKFORBETA, false));
 
-        AC_H.setText(Main.preferences.getString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, "12:00").split(":")[0]);
-        AC_M.setText(Main.preferences.getString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, "12:00").split(":")[1]);
+        this.AC_H.setText(Main.preferences.getString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, "12:00").split(":")[0]);
+        this.AC_M.setText(Main.preferences.getString(Keys.KEY_SETTINGS_AUTOCHECK_INTERVAL, "12:00").split(":")[1]);
 
         if (Main.preferences.getString(Keys.KEY_SETTINGS_SOURCE, Keys.DEFAULT_SOURCE).equalsIgnoreCase(Keys.DEFAULT_SOURCE))
-            ((TextView) findViewById(R.id.textView_upSrc)).setText(getString(R.string.defaultt));
+            ((TextView) this.findViewById(id.textView_upSrc)).setText(this.getString(string.defaultt));
         else
-            ((TextView) findViewById(R.id.textView_upSrc)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_SOURCE, Keys.DEFAULT_SOURCE));
+            ((TextView) this.findViewById(id.textView_upSrc)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_SOURCE, Keys.DEFAULT_SOURCE));
 
-        ((Checkable) findViewById(R.id.checkbox_useStaticFilename)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USESTATICFILENAME, false));
+        ((Checkable) this.findViewById(id.checkbox_useStaticFilename)).setChecked(Main.preferences.getBoolean(Keys.KEY_SETTINGS_USESTATICFILENAME, false));
 
-        ((TextView) findViewById(R.id.textView_staticFilename)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, getString(R.string.undefined)));
+        ((TextView) this.findViewById(id.textView_staticFilename)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_LASTSTATICFILENAME, this.getString(string.undefined)));
 
-        ((TextView) findViewById(R.id.textView_romBase)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_ROMBASE, "n/a").toUpperCase());
+        ((TextView) this.findViewById(id.textView_romBase)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_ROMBASE, "n/a").toUpperCase());
 
-        ((TextView) findViewById(R.id.textView_romApi)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_ROMAPI, "n/a").toUpperCase());
-        screenUpdating = false;
+        ((TextView) this.findViewById(id.textView_romApi)).setText(Main.preferences.getString(Keys.KEY_SETTINGS_ROMAPI, "n/a").toUpperCase());
+        this.screenUpdating = false;
     }
 
     private Object[] showDialog(CharSequence msg, CharSequence hint, CharSequence editTextContent) {
-        View child = ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.blank_view, null);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        View child = ((LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(layout.blank_view, null);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         child.setLayoutParams(params);
         child.setPadding(30, 30, 30, 30);
-        final EditText editText = new EditText(Settings.this);
+        EditText editText = new EditText(this);
         editText.setSingleLine();
         editText.setHorizontallyScrolling(true);
         editText.setHint(hint);
         if (editTextContent != null) {
             editText.setText(editTextContent);
         }
-        TextView textView = new TextView(Settings.this);
+        TextView textView = new TextView(this);
         textView.setText(msg);
         ((ViewManager) child).addView(textView, params);
         ((ViewManager) child).addView(editText, params);
-        Dialog dialog = new Dialog(activity, android.R.style.Theme_DeviceDefault_Dialog_NoActionBar_MinWidth);
+        Dialog dialog = new Dialog(this.activity, style.Theme_DeviceDefault_Dialog_NoActionBar_MinWidth);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(child);
         dialog.show();
@@ -569,16 +582,16 @@ public class Settings extends AppCompatActivity {
 
     private boolean getDevicePart() throws DeviceNotSupportedException {
         Scanner s;
-        DEVICE_PART = "";
+        this.DEVICE_PART = "";
         boolean DEVICE_SUPPORTED = false;
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(Main.preferences.getString(Keys.KEY_SETTINGS_SOURCE, Keys.DEFAULT_SOURCE)).openConnection();
             s = new Scanner(connection.getInputStream());
         } catch (final Exception e) {
-            runOnUiThread(new Runnable() {
+            this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Settings.this.getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
                 }
             });
             return false;
@@ -598,7 +611,7 @@ public class Settings extends AppCompatActivity {
                     break;
 
                 //noinspection SingleCharacterStringConcatenation
-                DEVICE_PART += line + '\n';
+                this.DEVICE_PART += line + '\n';
             }
             return true;
         } else {
@@ -618,19 +631,19 @@ public class Settings extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        overridePendingTransition(R.anim.slide_in_ltr, R.anim.slide_out_ltr);
+        this.overridePendingTransition(anim.slide_in_ltr, anim.slide_out_ltr);
     }
 
     @Override
     public String toString() {
         return "Settings{" +
-                "activity=" + activity +
-                ", DEVICE_PART='" + DEVICE_PART + '\'' +
-                ", screenUpdating=" + screenUpdating +
-                ", AC_H=" + AC_H +
-                ", AC_M=" + AC_M +
-                ", intervalChanger=" + intervalChanger +
-                ", prefListener=" + prefListener +
+                "activity=" + this.activity +
+                ", DEVICE_PART='" + this.DEVICE_PART + '\'' +
+                ", screenUpdating=" + this.screenUpdating +
+                ", AC_H=" + this.AC_H +
+                ", AC_M=" + this.AC_M +
+                ", intervalChanger=" + this.intervalChanger +
+                ", prefListener=" + this.prefListener +
                 '}';
     }
 }

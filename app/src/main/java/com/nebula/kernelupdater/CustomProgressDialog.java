@@ -1,10 +1,14 @@
 package com.nebula.kernelupdater;
 
+import android.R.style;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.Window;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.nebula.kernelupdater.R.id;
+import com.nebula.kernelupdater.R.layout;
 
 /**
  * Created by Mike on 9/22/2014.
@@ -12,54 +16,57 @@ import android.widget.TextView;
 public class CustomProgressDialog extends Dialog {
 
     public static final String UNIT = " MB";
-    private ProgressBar progressBar;
+    private final ProgressBar progressBar;
     private int MAX;
-    private TextView FILENAME, FILESIZE, DOWNLOADED, PERCENTAGE;
+    private final TextView FILENAME;
+    private final TextView FILESIZE;
+    private final TextView DOWNLOADED;
+    private final TextView PERCENTAGE;
 
     public CustomProgressDialog(Context context) {
-        super(context, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar_MinWidth);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.progress_dialog_layout);
-        MAX = 100;
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        FILENAME = (TextView) findViewById(R.id.textView_filename);
-        FILESIZE = (TextView) findViewById(R.id.textView_filesize);
-        DOWNLOADED = (TextView) findViewById(R.id.textView_downloaded);
-        PERCENTAGE = (TextView) findViewById(R.id.percentage);
+        super(context, style.Theme_DeviceDefault_Light_Dialog_NoActionBar_MinWidth);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.setContentView(layout.progress_dialog_layout);
+        this.MAX = 100;
+        this.progressBar = (ProgressBar) this.findViewById(id.progressBar);
+        this.FILENAME = (TextView) this.findViewById(id.textView_filename);
+        this.FILESIZE = (TextView) this.findViewById(id.textView_filesize);
+        this.DOWNLOADED = (TextView) this.findViewById(id.textView_downloaded);
+        this.PERCENTAGE = (TextView) this.findViewById(id.percentage);
 
-        progressBar.setMax(MAX);
+        this.progressBar.setMax(this.MAX);
     }
 
     public void update(CharSequence filename, String downloaded, String filesize) {
-        FILENAME.setText(filename);
-        FILESIZE.setText(filesize + UNIT);
-        DOWNLOADED.setText(downloaded + UNIT);
+        this.FILENAME.setText(filename);
+        this.FILESIZE.setText(filesize + CustomProgressDialog.UNIT);
+        this.DOWNLOADED.setText(downloaded + CustomProgressDialog.UNIT);
     }
 
     public void setProgress(int percentage) {
         if (percentage < 0)
             return;
-        progressBar.setProgress(percentage);
-        PERCENTAGE.setText(percentage + "%");
+        this.progressBar.setProgress(percentage);
+        this.PERCENTAGE.setText(percentage + "%");
     }
 
     public void setMax(int max) {
-        progressBar.setMax(MAX = max);
+        this.progressBar.setMax(this.MAX = max);
     }
 
     public void setIndeterminate(boolean b) {
-        progressBar.setIndeterminate(b);
+        this.progressBar.setIndeterminate(b);
     }
 
     @Override
     public String toString() {
         return "CustomProgressDialog{" +
-                "progressBar=" + progressBar +
-                ", MAX=" + MAX +
-                ", FILENAME=" + FILENAME +
-                ", FILESIZE=" + FILESIZE +
-                ", DOWNLOADED=" + DOWNLOADED +
-                ", PERCENTAGE=" + PERCENTAGE +
+                "progressBar=" + this.progressBar +
+                ", MAX=" + this.MAX +
+                ", FILENAME=" + this.FILENAME +
+                ", FILESIZE=" + this.FILESIZE +
+                ", DOWNLOADED=" + this.DOWNLOADED +
+                ", PERCENTAGE=" + this.PERCENTAGE +
                 '}';
     }
 }

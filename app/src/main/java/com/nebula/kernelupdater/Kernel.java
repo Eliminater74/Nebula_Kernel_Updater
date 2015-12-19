@@ -20,12 +20,12 @@ public class Kernel implements Comparable<Kernel> {
     private boolean ISTESTBUILD;
 
     public Kernel(String parameters) {
-        this.PARAMS = parameters;
+        PARAMS = parameters;
 
-        if (this.PARAMS == null)
+        if (PARAMS == null)
             return;
 
-        Scanner s = new Scanner(this.PARAMS);
+        Scanner s = new Scanner(PARAMS);
 
         try {
             String line;
@@ -33,20 +33,20 @@ public class Kernel implements Comparable<Kernel> {
                 line = s.nextLine().trim();
                 if (line.length() > 0 && line.startsWith("_")) {
                     if (line.contains(Keys.KEY_KERNEL_BASE))
-                        this.BASE = line.split(":=")[1].trim();
+                        BASE = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_API))
-                        this.API = line.split(":=")[1].trim();
+                        API = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_VERSION))
-                        this.VERSION = line.split(":=")[1].trim();
+                        VERSION = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_ZIPNAME))
-                        this.ZIPNAME = line.split(":=")[1].trim();
+                        ZIPNAME = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_HTTPLINK))
-                        this.HTTPLINK = line.split(":=")[1].trim();
+                        HTTPLINK = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_MD5))
-                        this.MD5 = line.split(":=")[1].trim();
+                        MD5 = line.split(":=")[1].trim();
                     else if (line.contains(Keys.KEY_KERNEL_test))
                         try {
-                            this.ISTESTBUILD = Boolean.parseBoolean(line.split(":=")[1].trim());
+                            ISTESTBUILD = Boolean.parseBoolean(line.split(":=")[1].trim());
                         } catch (Exception ignored) {
 
                         }
@@ -58,7 +58,7 @@ public class Kernel implements Comparable<Kernel> {
     }
 
     public Collection<String> getBASE() {
-        String[] all = this.BASE.split(",");
+        String[] all = BASE.split(",");
         Set<String> set = new HashSet(all.length);
         for (String s : all)
             set.add(s.trim().toUpperCase());
@@ -66,7 +66,7 @@ public class Kernel implements Comparable<Kernel> {
     }
 
     public Collection<String> getAPI() {
-        String[] all = this.API.split(",");
+        String[] all = API.split(",");
         Set<String> set = new HashSet(all.length);
         for (String s : all)
             set.add(s.trim().toUpperCase());
@@ -74,41 +74,41 @@ public class Kernel implements Comparable<Kernel> {
     }
 
     public String getVERSION() {
-        return this.VERSION;
+        return VERSION;
     }
 
     public String getZIPNAME() {
-        return this.ZIPNAME;
+        return ZIPNAME;
     }
 
     public String getHTTPLINK() {
-        return this.HTTPLINK;
+        return HTTPLINK;
     }
 
     public boolean isTestBuild() {
-        return this.ISTESTBUILD;
+        return ISTESTBUILD;
     }
 
     public String getMD5() {
-        return this.MD5;
+        return MD5;
     }
 
     @Override
     public int compareTo(Kernel another) {
-        return this.MD5.compareTo(another.MD5);
+        return MD5.compareTo(another.MD5);
     }
 
     @Override
     public String toString() {
         return "Kernel{" +
-                "PARAMS='" + this.PARAMS + '\'' +
-                ", BASE='" + this.BASE + '\'' +
-                ", API='" + this.API + '\'' +
-                ", VERSION='" + this.VERSION + '\'' +
-                ", ZIPNAME='" + this.ZIPNAME + '\'' +
-                ", HTTPLINK='" + this.HTTPLINK + '\'' +
-                ", MD5='" + this.MD5 + '\'' +
-                ", ISTESTBUILD=" + this.ISTESTBUILD +
+                "PARAMS='" + PARAMS + '\'' +
+                ", BASE='" + BASE + '\'' +
+                ", API='" + API + '\'' +
+                ", VERSION='" + VERSION + '\'' +
+                ", ZIPNAME='" + ZIPNAME + '\'' +
+                ", HTTPLINK='" + HTTPLINK + '\'' +
+                ", MD5='" + MD5 + '\'' +
+                ", ISTESTBUILD=" + ISTESTBUILD +
                 '}';
     }
 }

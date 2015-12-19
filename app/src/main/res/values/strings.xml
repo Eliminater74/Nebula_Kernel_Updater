@@ -1,94 +1,94 @@
 <resources>
     <string name="app_name" translatable="false">Nebula Kernel Updater</string>
-    <string name="version">Version</string>
+    <string name="version" translatable="false">Version</string>
     <string name="action_log" translatable="false">last_kmsg</string>
-    <string name="action_about">About</string>
-    <string name="action_search">Search</string>
-    <string name="action_save">Save</string>
+    <string name="action_about" translatable="false">About</string>
+    <string name="action_search" translatable="false">Search</string>
+    <string name="action_save" translatable="false">Save</string>
 
-    <string name="activity_settings">Settings</string>
-    <string name="activity_fileBrowser">Browse</string>
+    <string name="activity_settings" translatable="false">Settings</string>
+    <string name="activity_fileBrowser" translatable="false">Browse</string>
 
-    <string name="hours">Hours</string>
-    <string name="minutes">Minutes</string>
-    <string name="defaultt">Default</string>
-    <string name="undefined">Undefined</string>
-    <string name="onReboot">Rebooting …</string>
-    <string name="proxy_list">Proxy List</string>
+    <string name="hours" translatable="false">Hours</string>
+    <string name="minutes" translatable="false">Minutes</string>
+    <string name="defaultt" translatable="false">Default</string>
+    <string name="undefined" translatable="false">Undefined</string>
+    <string name="onReboot" translatable="false">Rebooting …</string>
+    <string name="proxy_list" translatable="false">Proxy List</string>
 
-    <string name="dialog_title_downloading">Download in progress …</string>
-    <string name="dialog_title_changelog">Changelog</string>
-    <string name="dialog_title_readyToInstall">Ready to install</string>
-    <string name="dialog_title_md5mismatch">MD5 mismatch</string>
-    <string name="dialog_title_rootFail">Root is required</string>
+    <string name="dialog_title_downloading" translatable="false">Download in progress …</string>
+    <string name="dialog_title_changelog" translatable="false">Changelog</string>
+    <string name="dialog_title_readyToInstall" translatable="false">Ready to install</string>
+    <string name="dialog_title_md5mismatch" translatable="false">MD5 mismatch</string>
+    <string name="dialog_title_rootFail" translatable="false">Root is required</string>
 
-    <string name="dialog_content_about">Developed by %1$s</string>
-    <string name="dialog_content_about1">Modified by ALDRIN HOLMES</string>
-    <string name="dialog_content_about2">Modified by Eliminater74</string>
+    <string name="dialog_content_about" translatable="false">Developed by %1$s</string>
+    <string name="dialog_content_about1" translatable="false">Modified by ALDRIN HOLMES</string>
+    <string name="dialog_content_about2" translatable="false">Modified by Eliminater74</string>
 
-    <string name="card_title_latestVersion">Latest Version</string>
-    <string name="card_title_installedKernel">Installed Kernel</string>
+    <string name="card_title_latestVersion" translatable="false">Latest Version</string>
+    <string name="card_title_installedKernel" translatable="false">Installed Kernel</string>
 
-    <string name="field_filesize">File size</string>
-    <string name="filed_filename">File name</string>
-    <string name="field_downloaded">Downloaded</string>
+    <string name="field_filesize" translatable="false">File size</string>
+    <string name="filed_filename" translatable="false">File name</string>
+    <string name="field_downloaded" translatable="false">Downloaded</string>
 
-    <string name="msg_pleaseWait">Please wait …</string>
-    <string name="msg_up_to_date">You\'re up-to-date</string>
-    <string name="msg_failed_try_again">Failed, please try again later</string>
-    <string name="msg_device_not_supported">Device not supported</string>
-    <string name="msg_downloadCanceled">Download cancelled</string>
-    <string name="msg_downloadComplete">Download complete</string>
-    <string name="msg_updateFound">A new kernel version was found</string>
-    <string name="msg_changeable">This setting can be changed from the settings section</string>
-    <string name="msg_noKernelForYourROM">There\'s no %1$s kernel for %2$s</string>
-    <string name="msg_twrp">Automatic installation works only with TWRP recovery. CWM is not supported.</string>
-    <string name="msg_activeDownloads">You can\'t leave, you have active downloads</string>
-    <string name="msg_invalidFilename">Invalid filename</string>
-    <string name="msg_invalidProxy">Invalid proxy configuration</string>
-    <string name="msg_troubleProxy">Having trouble connecting? %1$s > %2$s</string>
-    <string name="msg_updateRequired">Please update to te latest app version from Play Store</string>
-    <string name="msgTitle_versionObs">Version obsolete</string>
-    <string name="msg_textHighlighted">Text highlighted in yellow</string>
-    <string name="msg_textNotFound">Nothing found</string>
-    <string name="msg_restartApplication">Changes will take effect after restarting the application.</string>
+    <string name="msg_pleaseWait" translatable="false">Please wait …</string>
+    <string name="msg_up_to_date" translatable="false">You\'re up-to-date</string>
+    <string name="msg_failed_try_again" translatable="false">Failed, please try again later</string>
+    <string name="msg_device_not_supported" translatable="false">Device not supported</string>
+    <string name="msg_downloadCanceled" translatable="false">Download cancelled</string>
+    <string name="msg_downloadComplete" translatable="false">Download complete</string>
+    <string name="msg_updateFound" translatable="false">A new %2$s kernel version was found</string>
+    <string name="msg_changeable" translatable="false">This setting can be changed from the settings section</string>
+    <string name="msg_noKernelForYourROM" translatable="false">There\'s no %1$s kernel for %2$s, Try another development branch</string>
+    <string name="msg_twrp" translatable="false">Automatic installation works only with TWRP recovery. CWM is not supported.</string>
+    <string name="msg_activeDownloads" translatable="false">You can\'t leave, you have active downloads</string>
+    <string name="msg_invalidFilename" translatable="false">Invalid filename</string>
+    <string name="msg_invalidProxy" translatable="false">Invalid proxy configuration</string>
+    <string name="msg_troubleProxy" translatable="false">Having trouble connecting? %1$s > %2$s</string>
+    <string name="msg_updateRequired" translatable="false">Please update to te latest app version from Play Store</string>
+    <string name="msgTitle_versionObs" translatable="false">Version obsolete</string>
+    <string name="msg_textHighlighted" translatable="false">Text highlighted in yellow</string>
+    <string name="msg_textNotFound" translatable="false">Nothing found</string>
+    <string name="msg_restartApplication" translatable="false">Changes will take effect after restarting the application.</string>
 
-    <string name="btn_whatsNew">See what\'s new</string>
-    <string name="btn_getIt">Get it now</string>
-    <string name="btn_ok">Okay</string>
-    <string name="btn_cancel">Cancel</string>
-    <string name="btn_dismiss">Dismiss</string>
-    <string name="btn_install">Reboot and install</string>
-    <string name="btn_installAnyway">Install anyway</string>
-    <string name="btn_downloadAgain">Download again</string>
+    <string name="btn_whatsNew" translatable="false">See what\'s new</string>
+    <string name="btn_getIt" translatable="false">Get it now</string>
+    <string name="btn_ok" translatable="false">Okay</string>
+    <string name="btn_cancel" translatable="false">Cancel</string>
+    <string name="btn_dismiss" translatable="false">Dismiss</string>
+    <string name="btn_install" translatable="false">Reboot and install</string>
+    <string name="btn_installAnyway" translatable="false">Install anyway</string>
+    <string name="btn_downloadAgain" translatable="false">Download again</string>
 
-    <string name="settings_category_backgroundCheck">BACKGROUND CHECK</string>
-    <string name="settings_category_proxy">PROXY</string>
-    <string name="settings_category_downloads">DOWNLOADS</string>
-    <string name="settings_category_romBase">ROM BASE</string>
+    <string name="settings_category_backgroundCheck" translatable="false">BACKGROUND CHECK</string>
+    <string name="settings_category_proxy" translatable="false">PROXY</string>
+    <string name="settings_category_downloads" translatable="false">DOWNLOADS</string>
+    <string name="settings_category_DevelopmentBranch" translatable="false">Development Info</string>
 
-    <string name="settings_switch_backgroundCheck">Background Check</string>
-    <string name="settings_textView_backgroundCheckInterval">Background Check Interval</string>
+    <string name="settings_switch_backgroundCheck" translatable="false">Background Check</string>
+    <string name="settings_textView_backgroundCheckInterval" translatable="false">Background Check Interval</string>
 
-    <string name="settings_checkbox_useAndroidDM">Use Android Download Manager</string>
-    <string name="settings_btn_useProxy">Use proxy</string>
-    <string name="settings_btn_downloadLocation">Download location</string>
-    <string name="settings_btn_staticFilename">Static filename</string>
-    <string name="settings_btn_receiveBeta">Experimental builds</string>
+    <string name="settings_checkbox_useAndroidDM" translatable="false">Use Android Download Manager</string>
+    <string name="settings_btn_useProxy" translatable="false">Use proxy</string>
+    <string name="settings_btn_downloadLocation" translatable="false">Download location</string>
+    <string name="settings_btn_staticFilename" translatable="false">Static filename</string>
+    <string name="settings_btn_receiveBeta" translatable="false">Experimental builds</string>
     <string name="settings_info_experimental" translatable="false">Tick to receive experimental builds</string>
-    <string name="settings_btn_updateSource">Update source</string>
+    <string name="settings_btn_updateSource" translatable="false">Update source</string>
 
-    <string name="settings_info_useAndroidDM">Use system\'s built-in download manager to handle downloads</string>
-    <string name="settings_info_useStaticFilename">Use the same filename for all downloads</string>
+    <string name="settings_info_useAndroidDM" translatable="false">Use system\'s built-in download manager to handle downloads</string>
+    <string name="settings_info_useStaticFilename" translatable="false">Use the same filename for all downloads</string>
 
-    <string name="prompt_install1">The kernel was downloaded successfully.\nClick %1$s to reboot and install it now.\nClick %2$s to install later.</string>
-    <string name="prompt_install2">The kernel file already exists with a matching md5.\nClick %1$s to reboot and install it now.\nClick %2$s to install later.</string>
-    <string name="prompt_md5mismatch">The kernel was downloaded successfully. However MD5 hash does not match the original file.\n\nOriginal:%1$s\nCalculated:%2$s</string>
-    <string name="prompt_rootFail">Failed to acquire root access.\nYou may proceed and download kernel updates through the app but kernel installation will not work without root.\nPlease check your superuser app.</string>
-    <string name="prompt_romBase">What is your ROM base?</string>
-    <string name="prompt_android_version">What version of Android are you using?</string>
-    <string name="prompt_blankDefault">Leave it blank for default</string>
-    <string name="prompt_zipExtension">Do not forget to add .zip file extension</string>
-    <string name="action_exit">Exit</string>
+    <string name="prompt_install1" translatable="false">The kernel was downloaded successfully.\nClick %1$s to reboot and install it now.\nClick %2$s to install later.</string>
+    <string name="prompt_install2" translatable="false">The kernel file already exists with a matching md5.\nClick %1$s to reboot and install it now.\nClick %2$s to install later.</string>
+    <string name="prompt_md5mismatch" translatable="false">The kernel was downloaded successfully. However MD5 hash does not match the original file.\n\nOriginal:%1$s\nCalculated:%2$s</string>
+    <string name="prompt_rootFail" translatable="false">Failed to acquire root access.\nYou may proceed and download kernel updates through the app but kernel installation will not work without root.\nPlease check your superuser app.</string>
+    <string name="prompt_android_version" translatable="false">What version of Android are you using?</string>
+    <string name="prompt_blankDefault" translatable="false">Leave it blank for default</string>
+    <string name="prompt_zipExtension" translatable="false">Do not forget to add .zip file extension</string>
+    <string name="action_exit" translatable="false">Exit</string>
+    <string name="prompt_DevBranch" translatable="false">Choose Your Development Branch:</string>
 
 </resources>

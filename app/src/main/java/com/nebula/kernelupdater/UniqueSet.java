@@ -9,7 +9,7 @@ public class UniqueSet<Kernel> extends ArrayList<Kernel> {
 
     @Override
     public boolean add(Kernel object) {
-        if (contains(object))
+        if (this.contains(object))
             return false;
         else
             return super.add(object);

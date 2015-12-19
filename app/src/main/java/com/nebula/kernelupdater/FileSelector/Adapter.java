@@ -1,5 +1,6 @@
 package com.nebula.kernelupdater.FileSelector;
 
+import android.R.id;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.nebula.kernelupdater.R;
+import com.nebula.kernelupdater.R.drawable;
+import com.nebula.kernelupdater.R.layout;
 import com.nebula.kernelupdater.Tools;
 
 import java.io.File;
@@ -19,7 +22,7 @@ import java.util.ArrayList;
 public class Adapter extends ArrayAdapter {
 
     public ArrayList<File> files;
-    private Context context;
+    private final Context context;
 
     public Adapter(Context context, int resource, ArrayList<File> files) {
         super(context, resource, files);
@@ -30,14 +33,14 @@ public class Adapter extends ArrayAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null)
-            convertView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.file_browser_list_item, null);
+            convertView = ((LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(layout.file_browser_list_item, null);
 
-        if (files.get(position).isDirectory()) {
-            convertView.findViewById(R.id.imageView1).setBackground(context.getResources().getDrawable(R.drawable.ic_folder_white_24dp));
-        } else if (Tools.getFileExtension(files.get(position)).equalsIgnoreCase(".zip")) {
-            convertView.findViewById(R.id.imageView1).setBackground(context.getResources().getDrawable(R.drawable.archive_blue));
+        if (this.files.get(position).isDirectory()) {
+            convertView.findViewById(R.id.imageView1).setBackground(this.context.getResources().getDrawable(drawable.ic_folder_white_24dp));
+        } else if (Tools.getFileExtension(this.files.get(position)).equalsIgnoreCase(".zip")) {
+            convertView.findViewById(R.id.imageView1).setBackground(this.context.getResources().getDrawable(drawable.archive_blue));
         }
-        ((TextView) convertView.findViewById(android.R.id.text1)).setText(files.get(position).isDirectory() ? position == 0 ? ".." : File.separator + files.get(position).getName() : files.get(position).getName());
+        ((TextView) convertView.findViewById(id.text1)).setText(this.files.get(position).isDirectory() ? position == 0 ? ".." : File.separator + this.files.get(position).getName() : this.files.get(position).getName());
 
         return convertView;
     }
@@ -45,8 +48,8 @@ public class Adapter extends ArrayAdapter {
     @Override
     public String toString() {
         return "Adapter{" +
-                "files=" + files +
-                ", context=" + context +
+                "files=" + this.files +
+                ", context=" + this.context +
                 '}';
     }
 }

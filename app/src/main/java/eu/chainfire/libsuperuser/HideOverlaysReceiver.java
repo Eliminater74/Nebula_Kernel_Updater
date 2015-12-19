@@ -44,8 +44,8 @@ public abstract class HideOverlaysReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.hasExtra(EXTRA_HIDE_OVERLAYS)) {
-            onHideOverlays(intent.getBooleanExtra(EXTRA_HIDE_OVERLAYS, false));
+        if (intent.hasExtra(HideOverlaysReceiver.EXTRA_HIDE_OVERLAYS)) {
+            this.onHideOverlays(intent.getBooleanExtra(HideOverlaysReceiver.EXTRA_HIDE_OVERLAYS, false));
         }
     }
 

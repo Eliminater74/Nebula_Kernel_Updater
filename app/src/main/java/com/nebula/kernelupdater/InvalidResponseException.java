@@ -5,7 +5,6 @@ package com.nebula.kernelupdater;
  */
 public class InvalidResponseException extends Exception {
     public InvalidResponseException() {
-        super();
     }
 
     @Override

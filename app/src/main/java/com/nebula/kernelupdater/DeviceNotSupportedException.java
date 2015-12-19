@@ -5,6 +5,5 @@ package com.nebula.kernelupdater;
  */
 public class DeviceNotSupportedException extends RuntimeException {
     public DeviceNotSupportedException() {
-        super();
     }
 }
